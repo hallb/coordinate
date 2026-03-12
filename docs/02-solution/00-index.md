@@ -1,0 +1,26 @@
+# Solution Phase
+
+This directory captures solution and design artifacts that translate requirements into a concrete approach. Each document covers a distinct facet of the solution and is numbered to provide a natural reading order.
+
+## Documents
+
+| # | Document | Purpose |
+|---|----------|---------|
+| 01 | [Solution Overview](01-solution-overview.md) | Approach, key decisions, alternatives, architectural style |
+| 02 | [Architecture](02-architecture.md) | System context, containers, components, data flow |
+| 03 | [Data Model](03-data-model.md) | Entities, data dictionary, storage strategy, lifecycle |
+| 04 | [API Design](04-api-design.md) | API style, endpoints, auth, error handling, versioning |
+| 05 | [UI/UX](05-ui-ux.md) | Design principles, IA, key screens, interaction patterns |
+| 06 | [Technology Stack](06-technology-stack.md) | Languages, infrastructure, data stores, tooling |
+| 07 | [Security Design](07-security-design.md) | Threat model, auth, authorization, data protection |
+| 08 | [Integration](08-integration.md) | External systems, patterns, contracts, resilience |
+| 09 | [Infrastructure & Deployment](09-infrastructure-and-deployment.md) | Environments, CI/CD, IaC, observability |
+| 10 | [Testing Strategy](10-testing-strategy.md) | Test pyramid, scenarios, performance, traceability |
+
+## Working with AI
+
+When using these documents with an AI assistant:
+
+- Reference [../01-requirements/](../01-requirements/) when making design choices so they stay traceable to requirements.
+- Fill in documents incrementally; solution design often evolves as you implement.
+- Use the same glossary and terminology from the requirements phase for consistency.
