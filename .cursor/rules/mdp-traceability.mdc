@@ -1,0 +1,23 @@
+---
+description: MDP traceability — tie milestones and issues to docs in docs/01-requirements and docs/02-solution; keep acceptance criteria testable.
+alwaysApply: true
+---
+
+# MDP traceability
+
+Milestones and issues in **~/work/ai-coordinate/coordinate-planner** must trace back to the coordinate repo’s requirements and solution docs.
+
+## Source docs
+
+- **Requirements**: `docs/01-requirements/` (vision, stakeholders, goals, personas, functional/NFR, scope, assumptions, risks, glossary).
+- **Solution**: `docs/02-solution/` (overview, architecture, data model, API, UI/UX, tech stack, security, integration, infra, testing).
+
+## Linking work to docs
+
+- When creating or updating an issue, reference the specific doc(s) in the issue body or description (e.g. "Source: docs/01-requirements/01-vision.md").
+- Milestones align to phases: M-1 Problem & alignment, M-2 User/scope freeze, M-3 Risk gate, M-4 Solution baseline, M-5 Delivery readiness.
+
+## Acceptance criteria and checklists
+
+- Keep acceptance criteria and checklist items **concrete and testable** (e.g. "Glossary has at least 5 defined terms" or "Architecture diagram matches C4 level 1").
+- Use `mdp issue update --add-checklist "item"` and `mdp issue update --check "item"` to track completion.

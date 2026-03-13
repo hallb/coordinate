@@ -1,0 +1,45 @@
+---
+description: Unique artifact IDs — every named artifact in docs must carry a stable, typed identifier (FR-NNN, NFR-NNN, PER-NNN, etc.).
+globs: docs/**/*.md
+alwaysApply: false
+---
+
+# Unique Identifiers for Documentation Artifacts
+
+Every discrete artifact in a requirements or solution doc must have a **stable, typed ID** that can be referenced from anywhere else in the doc set.
+
+## ID Schemes
+
+| Artifact | Prefix | Example | Location |
+|---|---|---|---|
+| Functional Requirement | `FR-` | `FR-010` | `05-functional-requirements.md` |
+| Non-Functional Requirement | `NFR-` | `NFR-020` | `06-non-functional-requirements.md` |
+| Constraint | `CON-` | `CON-001` | `08-constraints-and-assumptions.md` |
+| Assumption | `ASM-` | `ASM-001` | `08-constraints-and-assumptions.md` |
+| External Dependency | `DEP-` | `DEP-001` | `08-constraints-and-assumptions.md` |
+| Persona | `PER-` | `PER-001` | `04-user-personas.md` |
+| Goal / Objective | `GOAL-` | `GOAL-001` | `03-goals-and-success-metrics.md` |
+| Risk | `RISK-` | `RISK-001` | `09-risks.md` |
+| Stakeholder | `STK-` | `STK-001` | `02-stakeholders.md` |
+| Glossary Term | `GLO-` | `GLO-001` | `10-glossary.md` |
+
+## Rules
+
+- **Every row in a table** that represents a named artifact must have an ID in its `ID` column.
+- **IDs are zero-padded** to three digits (e.g., `FR-001`, not `FR-1`). Increment within each prefix namespace.
+- **IDs never change** once assigned — they are permanent identifiers. If an artifact is removed, mark it `[DEPRECATED]` rather than deleting or renumbering.
+- **New artifacts** get the next available number in their namespace, regardless of ordering in the document.
+
+## Prose Artifacts
+
+For artifacts described in prose (e.g., Personas), add the ID as a heading suffix or bold label:
+
+```markdown
+### PER-001 · Ben (Founder / Family Insurance Manager)
+```
+
+or inline:
+
+```markdown
+**STK-003** — Privacy regulators (PIPEDA, provincial)
+```

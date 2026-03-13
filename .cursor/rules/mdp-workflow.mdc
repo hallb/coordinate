@@ -1,0 +1,35 @@
+---
+description: MDP workflow — update issues/milestones when starting or finishing substantial work; use structured titles and dependency links.
+alwaysApply: true
+---
+
+# MDP workflow
+
+Planning for this repo is tracked in **~/work/ai-coordinate/coordinate-planner** via Markdown Projects (MDP). Use the `mdp` CLI with `-p /home/ben/work/ai-coordinate/coordinate-planner` (or `$MDP_PLANNER` if set).
+
+## When to update MDP
+
+- **Starting substantial work** (e.g. implementing a feature or completing a doc section): set the corresponding issue to "In Progress" and add a log entry.
+- **Completing work**: set issue status to "Done", add checklist/check where applicable, and add a short log entry.
+- **Discovering dependencies**: set `blockedBy`, `parent`, or `relatedTo` when tasks are coupled.
+
+## Issue titles and links
+
+- Prefer structured titles that match doc sections: `requirements: <topic>` or `solution: <topic>` (e.g. `requirements: Vision and problem statement`, `solution: Architecture and data model`).
+- When creating issues, link them to the correct milestone (M-1 through M-5) and use `--blocked-by` / `--parent` when one task depends on another.
+
+## Commands (project path)
+
+```bash
+# Ensure PATH includes Bun (mdp is installed via bun)
+export PATH="$HOME/.bun/bin:$PATH"
+PLANNER=~/work/ai-coordinate/coordinate-planner
+
+# Create / update issue
+mdp issue create -p "$PLANNER" -t "Title" --type task --milestone M-1
+mdp issue update -p "$PLANNER" --id ISS-N --status "In Progress"
+mdp issue log add -p "$PLANNER" --id ISS-N -b "What was done"
+
+# Batch operations (JSON via stdin)
+echo '[{"id":"ISS-1","status":"Done"}]' | mdp issue batch-update -p "$PLANNER"
+```

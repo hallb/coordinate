@@ -1,0 +1,22 @@
+---
+description: This project uses GitHub's Scripts to Rule Them All pattern
+alwaysApply: true
+---
+
+# Scripts to Rule Them All
+
+This project follows [GitHub's normalized script pattern](https://github.com/github/scripts-to-rule-them-all). All developer lifecycle tasks are performed via scripts in `./script/`. Never suggest `npm run` scripts, Makefile targets, or ad-hoc commands as the primary interface — use or extend the standard scripts instead.
+
+| Script | Purpose |
+|---|---|
+| `script/bootstrap` | Install all dependencies |
+| `script/setup` | First-time setup or reset to initial state (calls bootstrap) |
+| `script/update` | Update after a pull (calls bootstrap) |
+| `script/server` | Start the application (calls update first) |
+| `script/test` | Run the test suite; accepts an optional path argument |
+| `script/cibuild` | CI entry point (calls test) |
+
+Scripts are executable shell files with no extension. Each script:
+- Uses `#!/bin/sh` and `set -e`
+- Changes to the project root via `cd "$(dirname "$0")/.."` 
+- Delegates to other scripts in the chain rather than duplicating logic

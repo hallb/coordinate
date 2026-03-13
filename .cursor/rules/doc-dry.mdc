@@ -1,0 +1,61 @@
+---
+description: DRY documentation — reference artifacts by ID instead of repeating their content; never duplicate definitions across docs.
+globs: docs/**/*.md
+alwaysApply: false
+---
+
+# DRY Documentation
+
+Documentation must not repeat itself. Every fact, definition, or artifact should have **one authoritative location**; everywhere else references it by ID.
+
+## Core Rule
+
+> **Define once, reference by ID everywhere else.**
+
+## What Counts as Duplication
+
+- Restating a persona's description outside `04-user-personas.md`
+- Re-listing a goal's definition outside `03-goals-and-success-metrics.md`
+- Copying a glossary definition rather than citing the term's `GLO-NNN` ID
+- Pasting a functional requirement into a solution doc instead of referencing `FR-NNN`
+
+## How to Reference
+
+Use the artifact's typed ID inline:
+
+```markdown
+The submission workflow (FR-010) must meet the latency target in NFR-005.
+
+This feature targets PER-001 (Ben) and PER-002 (Sobia).
+
+See RISK-003 for the regulatory risk associated with ASM-002.
+```
+
+For tables, add an ID column that cites the source rather than repeating the text:
+
+```markdown
+| FR ID  | NFR | Notes |
+|--------|-----|-------|
+| FR-010 | NFR-005 | Latency is the binding constraint |
+```
+
+## Exceptions
+
+- **Brief context clauses** are allowed when they aid readability without being the canonical definition.  
+  ✅ `FR-010 (claim submission)` — parenthetical is a hint, not a definition.  
+  ❌ Re-stating the full acceptance criteria from FR-010 in another doc.
+
+- **Summaries / indexes** (e.g., `00-index.md`) may list artifact IDs with one-line descriptions for navigation purposes, but must not duplicate detail.
+
+## Canonical Locations
+
+| Artifact Type | Canonical Doc |
+|---|---|
+| Personas | `01-requirements/04-user-personas.md` |
+| Goals & metrics | `01-requirements/03-goals-and-success-metrics.md` |
+| Functional requirements | `01-requirements/05-functional-requirements.md` |
+| Non-functional requirements | `01-requirements/06-non-functional-requirements.md` |
+| Constraints & assumptions | `01-requirements/08-constraints-and-assumptions.md` |
+| Risks | `01-requirements/09-risks.md` |
+| Stakeholders | `01-requirements/02-stakeholders.md` |
+| Glossary | `01-requirements/10-glossary.md` |
