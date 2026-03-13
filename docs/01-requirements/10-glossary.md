@@ -2,6 +2,6 @@
 
 Consistent terminology used across all requirements documents.
 
-| Term | Definition |
-|------|------------|
-|      |            |
+| ID | Term | Definition |
+|----|------|------------|
+|    |      |            |
