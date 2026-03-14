@@ -25,7 +25,7 @@ The domain has a natural **primary / secondary user** dynamic. One family member
 
 - **Background:** Ben's spouse. Employed, with separate employer Health (includes HCSA) and Dental plans through different insurers. Not the family's insurance manager -- she handles her own plan's direct interactions (e.g., showing her benefits card at the pharmacy) but relies on Ben to orchestrate the COB workflow and HCSA submissions.
 - **Needs:** Ability to submit a receipt or check the status of a claim without needing to understand the full COB picture. Visibility into what's been claimed under her plans on behalf of the family.
-- **Frustrations:** Occasionally incurs a health expense (e.g., a physio appointment) and needs to hand off the receipt to Ben for processing. The handoff is informal and things get lost. Her insurer portals are locked behind her personal credentials with SMS-based 2FA, so Ben can't access them independently -- she gets interrupted for 2FA codes when Ben needs to check or submit something on her plans, which is disruptive for both of them.
+- **Frustrations:** Informal receipt handoff to Ben is unreliable -- things get lost. Gets interrupted for 2FA codes when Ben needs portal access to her plans (see PER-001 for full context).
 - **Goals:** Minimal involvement in insurance admin. Confidence that expenses are being handled without needing to track them herself. Not being interrupted for 2FA codes.
 - **Role in system:** Secondary user. Can submit receipts and view claim status, but doesn't configure plans or manage the COB workflow.
 
@@ -52,6 +52,18 @@ The domain has a natural **primary / secondary user** dynamic. One family member
 - **Goals:** Correctly coordinate between her PHSP and her spouse's employer coverage. Maximize total family reimbursement without running afoul of CRA or COB rules.
 - **Role in system:** Primary user for her family. Represents the self-employed plan configuration.
 
+### PER-005 · Nadia (Caregiver for Aging Parent)
+
+- **Background:** Working professional in her 40s. Manages her own family's insurance through her and her spouse's employer plans (similar to PER-001). Her mother, Fatima (72), is a retired former federal employee with a retiree group benefits plan (health and dental through a single insurer). Fatima is cognitively sharp but not comfortable navigating insurer portals or tracking claims. Nadia has taken over Fatima's insurance administration.
+- **Plan configuration (for Fatima's household):**
+  - Fatima's retiree group benefits plan (one insurer, no HCSA)
+  - Fatima is the only Person in her own Household
+- **Needs:** Manage Fatima's claims end-to-end: enter expenses, submit claims, track reimbursements. Do this from the same system she uses for her own family, without maintaining separate credentials or juggling a second tool. Clear separation between her own Household's claims and Fatima's.
+- **Frustrations:** Currently logs into Fatima's insurer portal using Fatima's credentials -- feels like a security workaround. No consolidated view of Fatima's claim status alongside her own family's. Fatima sometimes forgets to tell her about a medical expense until weeks later, and receipts get lost.
+- **Goals:** One place to manage both her own family's insurance and her mother's. Confidence that Fatima's expenses are being handled and nothing is falling through the cracks. Eventually, Fatima could be granted Contributor-level access to submit her own receipts directly.
+- **Role in system:** Insurance Manager in Fatima's Household. Not an Insured or Beneficiary in that Household -- purely a delegate. Also an Insurance Manager (or Contributor) in her own family's Household.
+- **Note:** Represents the caregiver/delegate pattern: a System User managing a Household they have no insurance relationship with.
+
 ## Key Scenarios / User Stories
 
 ### Claim Submission Workflow
@@ -75,6 +87,16 @@ The domain has a natural **primary / secondary user** dynamic. One family member
 ### Self-Employed Coordination
 
 - As **PER-004 (Priya)**, I want to understand whether my child's expense should go through my PHSP or my spouse's employer plan first, so that I maximize reimbursement without violating COB rules.
+
+### Caregiver / Delegate Access
+
+- As **PER-005 (Nadia)**, I want to manage my mother Fatima's insurance claims from the same system I use for my own family, switching between Household contexts, so that I don't need a separate tool or login.
+- As **PER-005 (Nadia)**, I want to enter an expense on Fatima's behalf and have the system route it through Fatima's retiree plan, so that I don't need to understand Fatima's plan details from scratch each time.
+- As **PER-005 (Nadia)**, I want to grant Fatima limited access (Contributor) to her own Household in Coordinate, so that she can submit receipts directly when I'm not available.
+
+### Multi-Household Context
+
+- As **PER-001 (Ben)**, when Mira (18, dependent student) gets married and her spouse has employer insurance, I want Mira to exist as a single Person in Coordinate who belongs to both my Household (as a dependent/Beneficiary) and her own new Household, so that claims under both contexts are tracked without duplicating her identity.
 
 ## Jobs to Be Done
 

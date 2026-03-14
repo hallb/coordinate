@@ -44,6 +44,19 @@ Authentication, authorization, and data protection requirements.
 |----|-------------|----------|---------------------|
 |    |             |          |                     |
 
+### Architectural consideration: delegated authorization
+
+Coordinate's multi-household model introduces a delegation pattern: a System User (e.g., an adult child) may manage a Household they have no insurance relationship with (see PER-005, FR-044). This is structurally similar to the problems addressed by the [User-Managed Access (UMA)](https://en.wikipedia.org/wiki/User-Managed_Access) extension to OAuth 2.0, where a resource owner authorizes a requesting party to act on their behalf across security boundaries.
+
+At the requirements level, the key principles are:
+
+- **Explicit consent**: A Household's existing Insurance Manager must explicitly grant access to another System User. No implicit access.
+- **Scoped delegation**: Delegated access is scoped to a specific Household and a specific User Role (Insurance Manager or Contributor). It does not grant access to any other Household the grantor may belong to.
+- **Revocability**: Delegated access can be revoked at any time by any Insurance Manager of the Household.
+- **Auditability**: All delegation grants and revocations should be logged.
+
+Whether the solution adopts UMA formally, uses a simpler RBAC-with-invitations model, or takes another approach is deferred to the solution phase. The requirement is that the delegation mechanism satisfies the principles above.
+
 ## Reliability / Availability
 
 Uptime targets, recovery time objective (RTO), recovery point objective (RPO).

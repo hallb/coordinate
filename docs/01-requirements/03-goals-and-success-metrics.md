@@ -7,7 +7,7 @@ High-level outcomes the project aims to achieve. Four goals, ordered by priority
 | ID | Goal | Notes |
 |----|------|-------|
 | G1 | **Personal utility** | Coordinate fully manages Ben's family insurance claims across all plans, dependents, and HCSAs, replacing the current manual process. |
-| G2 | **General utility** | Coordinate generalizes to serve Canadian families with varying plan configurations (single plan, dual employer, self-employed PHSP, with/without HCSA). |
+| G2 | **General utility** | Coordinate generalizes to serve Canadian families with varying plan configurations (single plan, dual employer, self-employed PHSP, with/without HCSA). Also serves caregivers managing insurance for aging parents or other dependents in separate households -- a growing segment as Canada's population ages. |
 | G3 | **Sustainability** | Revenue covers all operational costs (infrastructure, third-party services) plus the value of ongoing development and maintenance time, assessed at an hourly rate reflecting opportunity cost. |
 | G4 | **Profitability** | (Stretch) Revenue exceeds total costs including time, generating positive returns. |
 
@@ -18,7 +18,7 @@ Measurable targets tied to each goal:
 | ID | Objective | Notes |
 |----|------------|-------|
 | G1 | Ben's family claims are fully tracked; HCSA utilization reaches 100%; no claim is missed or left incomplete; time spent on insurance admin is measurably reduced. | |
-| G2 | At least one non-founder user (different plan configuration) successfully manages claims through Coordinate; the system handles the plan configurations represented by all four personas (Ben, Sobia, Marco, Priya). | |
+| G2 | At least one non-founder user (different plan configuration) successfully manages claims through Coordinate; the system handles the plan configurations represented by all five personas (Ben, Sobia, Marco, Priya, Nadia) including the cross-household caregiver pattern. | |
 | G3 | Define and track total cost of ownership (hosting, services, imputed time at hourly rate); identify a revenue model that covers TCO. | |
 | G4 | Positive margin after all costs including time. | |
 
@@ -40,7 +40,7 @@ How we know we have succeeded. Concrete, measurable indicators grouped by goal:
 | Metric | Target | Measurement Method |
 |--------|--------|--------------------|
 | Active households beyond the founder | Grow over time | Count of distinct households with active use |
-| Plan configuration coverage | All four persona types supported | Which persona configurations are represented among users |
+| Plan configuration coverage | All five persona types supported (including caregiver/delegate) | Which persona configurations are represented among users |
 | User-reported claim completion rate | High | Survey or in-app feedback |
 
 ### Sustainability (G3)
