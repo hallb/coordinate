@@ -10,7 +10,7 @@ The domain has a natural **primary / secondary user** dynamic. One family member
 
 ### PER-001 · Ben (Founder / Family Insurance Manager)
 
-- **Background:** Software professional. Technically proficient. Manages insurance claims for a family of five: himself, his spouse Sobia, a 13-year-old, and two 18-year-old dependent students. Both he and Sobia are employed with separate employer group benefits plans through different insurers.
+- **Background:** Software professional. Technically proficient. Manages insurance claims for a family of five: himself, his spouse Sobia, and three dependents -- Gabriel (13), Mira (18, dependent student), and Anisa (18, dependent student). Both he and Sobia are employed with separate employer group benefits plans through different insurers.
 - **Plan configuration:**
   - His employer plan (Insurer A, includes HCSA)
   - Sobia's employer plans: separate Health (Insurer B, includes HCSA) and Dental (Insurer C)
