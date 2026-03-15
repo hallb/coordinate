@@ -17,16 +17,16 @@ Measurable targets tied to each goal:
 
 | ID | Objective | Notes |
 |----|------------|-------|
-| G1 | Ben's family claims are fully tracked; HCSA utilization reaches 100%; no claim is missed or left incomplete; time spent on insurance admin is measurably reduced. | |
-| G2 | At least one non-founder user (different plan configuration) successfully manages claims through Coordinate; the system handles the plan configurations represented by all five personas (Ben, Sobia, Marco, Priya, Nadia) including the cross-household caregiver pattern. | |
-| G3 | Define and track total cost of ownership (hosting, services, imputed time at hourly rate); identify a revenue model that covers TCO. | |
-| G4 | Positive margin after all costs including time. | |
+| O1 | Ben's family claims are fully tracked; HCSA utilization reaches 100%; no claim is missed or left incomplete; time spent on insurance admin is measurably reduced. | Tied to G1 |
+| O2 | At least one non-founder user (different plan configuration) successfully manages claims through Coordinate; the system handles the plan configurations represented by all five personas (Ben, Sobia, Marco, Priya, Nadia) including the cross-household caregiver pattern. | Tied to G2 |
+| O3 | Define and track total cost of ownership (hosting, services, imputed time at hourly rate); identify a revenue model that covers TCO. | Tied to G3 |
+| O4 | Positive margin after all costs including time. | Tied to G4 |
 
 ## Success Metrics / KPIs
 
 How we know we have succeeded. Concrete, measurable indicators grouped by goal:
 
-### Personal utility (G1)
+### Personal utility (G1 / O1)
 
 | Metric | Target | Measurement Method |
 |--------|--------|--------------------|
@@ -35,7 +35,7 @@ How we know we have succeeded. Concrete, measurable indicators grouped by goal:
 | Claims with missed follow-up submissions | 0 | Count of expenses with primary paid but secondary/HCSA not submitted |
 | Time spent on insurance admin per month | Reduced vs. baseline | Self-reported (before/after) |
 
-### General utility (G2)
+### General utility (G2 / O2)
 
 | Metric | Target | Measurement Method |
 |--------|--------|--------------------|
@@ -43,7 +43,7 @@ How we know we have succeeded. Concrete, measurable indicators grouped by goal:
 | Plan configuration coverage | All five persona types supported (including caregiver/delegate) | Which persona configurations are represented among users |
 | User-reported claim completion rate | High | Survey or in-app feedback |
 
-### Sustainability (G3)
+### Sustainability (G3 / O3)
 
 | Metric | Target | Measurement Method |
 |--------|--------|--------------------|
@@ -52,7 +52,7 @@ How we know we have succeeded. Concrete, measurable indicators grouped by goal:
 | Monthly revenue | Tracked | Revenue model dependent |
 | Revenue-to-total-cost ratio | >= 1.0 | Revenue / (operational + imputed cost) |
 
-### Profitability (G4)
+### Profitability (G4 / O4)
 
 | Metric | Target | Measurement Method |
 |--------|--------|--------------------|

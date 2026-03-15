@@ -17,6 +17,10 @@ This directory captures solution and design artifacts that translate requirement
 | 09 | [Infrastructure & Deployment](09-infrastructure-and-deployment.md) | Environments, CI/CD, IaC, observability |
 | 10 | [Testing Strategy](10-testing-strategy.md) | Test pyramid, scenarios, performance, traceability |
 
+## Architecture Decision Records
+
+Significant architectural decisions are documented as ADRs in the [adr/](adr/) directory. See the [ADR index](adr/00-index.md) for the full register.
+
 ## Working with AI
 
 When using these documents with an AI assistant:
