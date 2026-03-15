@@ -4,8 +4,8 @@
 
 Canadian families covered by multiple health and dental plans -- whether through employers, self-employment (incorporated PHSPs), or a combination -- face a fragmented, multi-step claim submission process that is confusing, time-consuming, and leads to missed reimbursements:
 
-- **Multi-plan complexity**: When a family has two or more plans (e.g., both spouses with employer coverage, or one employed and one self-employed with a PHSP), a single expense like a child's dental filling can require 3-5 separate submissions -- to the primary plan, the secondary plan, and then a Health Care Spending Account -- each requiring the EOB from the previous step.
-- **Confusing COB rules**: Determining which plan is primary depends on the claimant (employee-first rule) and, for dependents, on parent birthdays (the "birthday rule"). Mistakes cause denials and delays.
+- **Multi-plan complexity**: When a family has two or more plans (e.g., both spouses with employer coverage, or one employed and one self-employed with a PHSP), a single expense like a child's dental filling can require 3-5 separate submissions -- to the primary plan, the secondary plan, and then a Health Care Spending Account -- each requiring the Explanation of Benefits (EOB) from the previous step.
+- **Confusing coordination of benefits (COB) rules**: Determining which plan is primary depends on the claimant (employee-first rule) and, for dependents, on parent birthdays (the "birthday rule"). Mistakes cause denials and delays.
 - **Siloed insurer tools**: Each insurer's app (Sun Life, Manulife, Blue Cross, etc.) only manages claims for its own plan. No consumer tool orchestrates the end-to-end COB workflow across insurers.
 - **HCSA as an afterthought**: HCSAs can cover remaining out-of-pocket costs after insurance pays, but many families forget to submit or don't realize what's eligible, leaving employer-provided dollars unspent.
 - **Receipt and document chaos**: Tracking receipts, EOBs, submission deadlines, remaining annual maximums, and per-category limits across multiple dependents and benefit types is a manual, error-prone burden.

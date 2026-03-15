@@ -23,7 +23,7 @@ erDiagram
     Expense ||--o{ Submission : "claimed via"
     Submission ||--o| ExplanationOfBenefits : produces
     ExplanationOfBenefits }o--o| Submission : "supports next"
-    Expense ||--o{ Receipt : documented_by
+    Expense ||--o{ SupportingDocument : documented_by
     InsurancePlan ||--o{ Submission : receives
     Person ||--o| SystemUser : "may have account"
 ```
@@ -71,7 +71,7 @@ erDiagram
 | GLO-024 | Expense | Health Expense | A health or dental expenditure incurred by a Person. Has an original amount and a Remaining Balance that is reduced as Submissions resolve. An Expense is the top-level unit of work in Coordinate; all Submissions, Receipts, and Explanations of Benefits are linked to an Expense. |
 | GLO-025 | Remaining Balance | Unreimbursed Balance | The portion of an Expense's original amount not yet reimbursed by any plan. Drives the Routing Engine loop: while Remaining Balance > 0 and applicable plans exist, claim against the next applicable plan. |
 | GLO-026 | Submission | Claim Submission | A claim submitted to a specific Insurance Plan for a specific Expense. Records submission date, plan, amount claimed, reference number, and adjudication outcome. An Expense may have multiple Submissions (one per plan in the Claim Cascade). |
-| GLO-027 | Claim State | Submission Status | The current status of a Submission. Valid states: submitted, processing, paid (full), paid (partial), rejected (fixable), rejected (final), audit, limit hit, closed (zero balance), closed (out of pocket). |
+| GLO-027 | Claim State | Submission Status | The current status of a Submission. Valid states: `submitted`, `processing`, `paid_full`, `paid_partial`, `rejected_fixable`, `rejected_final`, `audit`, `limit_hit`, `closed_zero`, `closed_oop`. See the claim state table in Functional Requirements for definitions. |
 | GLO-028 | Explanation of Benefits | EOB | The document produced by an insurer after adjudicating a Submission. Shows: amount claimed, amount paid, amount denied, and reasons for any denial. Required as a supporting document when submitting a subsequent claim to a secondary plan or Health Care Spending Account. |
 | GLO-034 | Supporting Document | | Any document attached to an Expense or Submission to satisfy insurer requirements. Subtypes include: Receipt (GLO-029), referral (physician authorization required for some paramedical claims), prescription, and lab requisition. Attachment is optional at expense entry time -- insurers may request specific documents after submission (triggering a `rejected_fixable` state). |
 | GLO-029 | Receipt | | A Supporting Document (GLO-034) from the provider (dentist, pharmacist, therapist, etc.). Must include: patient name, provider name, service date, and itemized services and amounts. See NFR-006 for retention requirements. |
