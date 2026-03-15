@@ -1,0 +1,40 @@
+---
+description: Onion / ports-and-adapters architecture — enforces dependency direction and layer isolation in application source code.
+globs: src/**/*.ts
+alwaysApply: false
+---
+
+# Onion / Ports-and-Adapters Architecture
+
+All application code follows a strict layered architecture. Dependencies point inward only.
+
+## Layer structure
+
+```
+src/
+  domain/         # Core domain — entities, value objects, domain services, ports (interfaces)
+  application/    # Use cases / application services — orchestrates domain objects
+  adapters/       # Adapter implementations — storage, UI, external integrations
+```
+
+## Rules
+
+1. **`domain/` has zero external dependencies.** No imports from `application/`, `adapters/`, or any framework/library. Only TypeScript built-ins and other `domain/` modules.
+2. **Ports live in `domain/`.** Repository interfaces, service interfaces, and any integration boundary the domain needs are defined as TypeScript interfaces in `domain/`.
+3. **`application/` depends on `domain/` only.** Application services import domain entities, ports, and domain services. They never import from `adapters/`.
+4. **`adapters/` implements ports.** Concrete classes in `adapters/` implement the interfaces defined in `domain/`. Adapters may import from `domain/` and `application/`, and may use external libraries.
+5. **Dependency injection wires it together.** A composition root (e.g., `src/main.ts` or `src/bootstrap.ts`) instantiates adapters and injects them into application services. Domain code never instantiates its own dependencies.
+
+## Import direction summary
+
+```
+adapters/ → application/ → domain/
+              ↑ never reversed
+```
+
+## Common mistakes
+
+- ❌ Domain entity importing a database client or ORM
+- ❌ Domain service importing from `adapters/`
+- ❌ Application service instantiating a concrete adapter instead of accepting a port
+- ✅ Domain defines `ExpenseRepository` interface; `adapters/storage/IndexedDbExpenseRepository` implements it
