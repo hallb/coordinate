@@ -160,24 +160,3 @@ Insurer interaction is delivered as three progressive capability tiers. Higher t
 
 > **Architectural note**: FR-091 and FR-092 may require browser automation where APIs are unavailable. Feasibility is insurer-specific and may be revisited as integration surface is explored during solution design. Insurers that cannot be automated fall back to FR-090 (guided manual submission).
 
----
-
-## Dependencies
-
-| FR | Depends On | Notes |
-|----|------------|-------|
-| FR-010 (routing) | FR-040 (plan config), FR-050 (max tracking) | Routing cannot determine next plan without knowing plan configuration and remaining maximums. |
-| FR-011 (category skip) | FR-041 (plan categories) | Category eligibility is derived from plan configuration. |
-| FR-012 (limit hit) | FR-050 (max tracking) | Exhaustion state is read from maximum tracking. |
-| FR-030 (remainder cascade) | FR-010 (routing), FR-021 (outcome recording) | Cascade is triggered by outcome recording; next plan comes from routing engine. |
-| FR-022 (EOB linking) | FR-020, FR-021 | EOB is produced from submission tracking and linked to next submission. |
-| FR-070 (action alerts) | FR-021, FR-030 | Alerts fire based on claim state transitions. |
-| FR-071 (deadline alerts) | FR-041 (plan config) | Deadlines are configured per plan. |
-| FR-072 (expiry alerts) | FR-051 (plan year reset), FR-052 (HCSA balance) | Alerts compare current date to plan year end and remaining balances. |
-| FR-073 (limit alerts) | FR-050 (max tracking) | Alerts compare remaining maximum to configured threshold. |
-| FR-080 (year-end report) | FR-032, FR-033 | Out-of-pocket amounts come from closed expenses. |
-| FR-056 (utilisation planning) | FR-050 (max tracking) | Projection requires current remaining maximum state. |
-| FR-090 (submission guidance) | FR-041 (plan config) | Guidance is specific to the insurer configured on the plan. |
-| FR-091 (status retrieval) | FR-020, FR-090 | Status retrieval is an enhancement of the submission tracking flow. |
-| FR-070 (action alerts) | FR-091 | Automated status retrieval enables alerts without manual outcome entry. |
-| FR-071 (deadline alerts) | FR-041 (grace period), FR-051 (plan year) | Grace period end date is a key deadline type surfaced by FR-071. |
