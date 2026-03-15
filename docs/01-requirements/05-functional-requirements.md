@@ -20,13 +20,18 @@ flowchart TD
     adjudicate -->|"Paid (partial)"| updateBal["Update balance with remainder"]
     adjudicate -->|Rejected| handleReject{Fixable?}
     adjudicate -->|Audit| waitAudit["Wait for audit resolution"]
-    adjudicate -->|"Limit hit"| skipPlan["Mark plan exhausted for this category/person/year"]
+    adjudicate -->|"Limit hit"| markExhausted["Mark plan exhausted for this category/person/year"]
     waitAudit --> adjudicate
     updateBal --> findNext
     handleReject -->|Yes| resubmit["Fix and resubmit to same plan"]
     resubmit --> adjudicate
-    handleReject -->|No| skipPlan
-    skipPlan --> findNext
+    handleReject -->|No| markExhausted
+    markExhausted --> eobRequired{"EOB from exhausted\nplan required?"}
+    eobRequired -->|"Yes (config)"| getEOB["Submit to exhausted plan\nto obtain EOB"]
+    eobRequired -->|"No (config)"| findNext
+    eobRequired -->|"Ask"| userDecide["User decides:\nobtain EOB or skip"]
+    getEOB --> findNext
+    userDecide --> findNext
     hasNext -->|"No plans left"| closedOOP["Closed (out-of-pocket remainder)"]
 ```
 
@@ -41,7 +46,7 @@ flowchart TD
 | `rejected_fixable` | Rejected for a correctable reason (missing doc, wrong format) |
 | `rejected_final` | Rejected and not correctable for this plan |
 | `audit` | Plan has flagged for manual audit; outcome pending |
-| `limit_hit` | Plan's annual maximum for this category/person is exhausted |
+| `limit_hit` | Plan's annual maximum for this category/person is exhausted; EOB may be sought before cascade continues |
 | `closed_zero` | Expense fully reimbursed; balance = 0 |
 | `closed_oop` | No more applicable plans; remainder is out-of-pocket |
 
@@ -54,18 +59,18 @@ flowchart TD
 | ID | Requirement | Priority | Acceptance Criteria |
 |----|-------------|----------|---------------------|
 | FR-001 | Record a new expense with: service date, beneficiary (family member), expense category, amount, and provider name. | Must | Expense is stored and visible in the claim dashboard. All five fields are required. |
-| FR-002 | Attach a receipt to an expense via photo capture or file upload. | Must | Receipt is stored and linked to the expense. Supported formats include JPEG, PNG, and PDF. |
-| FR-003 | Support recurring expense templates. A template captures: beneficiary, category, amount, provider, and a recurrence interval (e.g., weekly). Applying a template pre-fills a new expense. | Should | Templates can be created, edited, and applied. Applying a template creates a new expense record, not a dependent record. |
-| FR-004 | Support multi-beneficiary sessions. A single expense can name more than one beneficiary (e.g., a joint counselling session). Each beneficiary's portion is tracked and claimed independently. | Should | Expense can be split by beneficiary; each split follows its own routing and balance lifecycle. |
+| FR-002 | Attach supporting documents (receipts, referrals, prescriptions, lab requisitions) to an expense via photo capture or file upload. Attachment is optional at entry time -- claims can be submitted without documents and supporting docs added later when required by the insurer. Supported formats: JPEG, PNG, PDF. | Must | Supporting documents are stored and linked to the expense. Submission is not blocked by absence of documents. |
+| FR-003 | When entering a new expense, suggest likely values (beneficiary, category, provider, amount) based on the user's expense history for that provider or category. Suggestions reduce rekeying without imposing rigid recurrence models. | Could | Suggestions appear during expense entry. Accepting a suggestion pre-fills the field; user can override. No suggestion is ever applied automatically. |
+| FR-004 | Support multi-beneficiary sessions. A single expense can be attributed to one or more beneficiaries (e.g., a joint counselling session). When multiple beneficiaries are possible, surface remaining coverage per beneficiary per category to help the user decide the most advantageous attribution. Each beneficiary's portion is tracked and claimed independently through its own routing and balance lifecycle. Note: insurer rules on whether attribution must be split proportionally or can be assigned flexibly are to be confirmed during solution design. | Should | Expense can be split by beneficiary. Remaining coverage per beneficiary is visible at attribution time. Each split follows its own routing and balance lifecycle. |
 | FR-005 | Handle provider direct-billing. When a provider has submitted directly to the primary plan, the expense enters the system with the primary submission pre-recorded (reference number, amount claimed, amount paid). The system picks up from the remainder cascade. | Should | User can mark an expense as direct-billed, enter the primary plan's payment details, and the system routes the remainder correctly. |
 
 ### Routing Engine
 
 | ID | Requirement | Priority | Acceptance Criteria |
 |----|-------------|----------|---------------------|
-| FR-010 | For a given expense, determine the next applicable plan using the following ordered rules: (1) employee-first rule (own plan before spouse's plan), (2) birthday rule for dependents (primary is the parent whose birthday is earliest in the calendar year), (3) duration of coverage as a tiebreaker. | Must | Given a test family configuration and a dependent expense, the system returns the correct primary plan in accordance with CLHIA Guideline G4. |
+| FR-010 | For a given expense, determine the next applicable plan using the following ordered rules: (1) employee-first rule (own plan before spouse's plan), (2) birthday rule for dependents (primary is the parent whose birthday is earliest in the calendar year), (3) duration of coverage as a tiebreaker. | Must | Given a test family configuration and a dependent expense, the system returns the correct primary plan in accordance with CLHIA Guideline G4. Test cases must include: (a) standard birthday rule, (b) parents with the same calendar birthday (falls back to duration-of-coverage tiebreaker), (c) employee-first override. |
 | FR-011 | Skip any plan that does not cover the expense category. | Must | A dental expense is not routed to a plan with no dental coverage. |
-| FR-012 | Skip any plan whose annual maximum for the relevant category and beneficiary is exhausted. Record the plan as `limit_hit` for that category/beneficiary/plan year. This affects all subsequent claims of the same category for the same beneficiary for the remainder of the plan year. | Must | Once marked `limit_hit`, the plan is not proposed again for that category/beneficiary until the plan year resets. |
+| FR-012 | When a plan's annual maximum for the relevant category and beneficiary is exhausted, record it as `limit_hit`. The routing engine recommends submitting to the exhausted plan anyway to obtain an EOB (required by some secondary insurers to process a COB claim), but allows the user to skip this step based on their knowledge of the secondary insurer's requirements. This behaviour is configurable per COB relationship ("secondary requires EOB from exhausted primary: yes / no / ask each time"). Once the exhausted plan is resolved (EOB obtained or skipped), the cascade continues to the next plan. `limit_hit` status applies to all subsequent claims of the same category for the same beneficiary for the remainder of the plan year. | Must | EOB-from-exhausted-primary behaviour respects the COB relationship configuration. Once `limit_hit`, the plan is not proposed again for that category/beneficiary until the plan year resets. |
 | FR-013 | Apply the HCSA-last-payer rule. HCSAs are never proposed before all applicable insurance plans have been evaluated. | Must | Routing engine never returns an HCSA as the next plan when an unevaluated insurance plan exists. |
 | FR-014 | Handle PHSP coordination. A corporate PHSP (PER-004 scenario) does not follow standard CLHIA COB guidelines. The system must allow the user to configure PHSP priority explicitly, with a note that PHSP typically acts as last-payer relative to group insurance but before HCSA. | Should | User can set PHSP payment order in plan configuration. Routing respects the configured order. |
 | FR-015 | Surface the routing decision to the user with a plain-language explanation. ("Submit to [Plan Name] because [reason]", e.g., "Submit to Sobia's Health Plan because Ben's plan has reached its annual maximum for Paramedical services.") | Must | Explanation is shown before the user confirms submission. |
@@ -98,17 +103,17 @@ flowchart TD
 | ID | Requirement | Priority | Acceptance Criteria |
 |----|-------------|----------|---------------------|
 | FR-040 | Define a household containing one or more Persons via Household Memberships. Each Person has a name and date of birth. A Person may belong to more than one Household (e.g., an adult dependent who is also a member of their own household). | Must | Household can be configured with all Persons. A Person added to a second Household shares their existing identity (no duplicate Person records). Birthday rule can be evaluated from stored birthdates. |
-| FR-041 | Add and configure insurance plans: insurer name, plan type (group health, group dental, HCSA, PHSP), plan year start date, and benefit categories with annual maximums per category per covered person. | Must | Plan configuration is stored and available to the routing engine. |
+| FR-041 | Add and configure insurance plans: insurer name, plan type (group health, group dental, HCSA, PHSP), plan year start date, submission grace period (days after plan year end during which prior-year claims can still be submitted), and benefit categories with annual maximums per category per covered person. | Must | Plan configuration is stored and available to the routing engine. Grace period is stored per plan and used by deadline alerting and routing. |
 | FR-042 | Define COB relationships between plans. The user can specify which plans coordinate with each other and in what order (where not fully determined by CLHIA rules). | Must | Routing engine uses configured COB order when statutory rules do not fully determine priority. |
 | FR-043 | Support plan changes. When a plan holder changes employers or plans, the old plan can be marked inactive (with an end date) and a new plan added. Historical claims against the old plan are preserved. | Must | Old plan is retained in history. New plan is used for routing from its effective date. |
-| FR-044 | Support multi-user household access with delegated authority. A System User selects a Household context after login (GLO-033). An Insurance Manager can grant another System User access as a Contributor or co-Insurance Manager. An Insurance Manager need not be an Insured or Beneficiary in the Household (see PER-005). Role definitions and scoping per GLO-007 through GLO-009. | Should | A System User can access multiple Households and switch context. An Insurance Manager with no plan membership in the Household can fully manage it. A Contributor can submit receipts and view status but cannot edit plan configuration or COB rules. |
+| FR-044 | Support multi-user household access with delegated authority. A System User selects a Household context after login (GLO-033). An Insurance Manager can grant another System User access as a Contributor or co-Insurance Manager. An Insurance Manager need not be an Insured or Beneficiary in the Household (see PER-005). Role definitions and scoping per GLO-007 through GLO-009. Two delegation initiation flows are supported: (1) **Caregiver-initiated** (primary flow): the delegate creates a Household on behalf of the care recipient, becomes its initial Insurance Manager, and adds the care recipient as a Person. The care recipient may later be invited as a System User (Contributor) if they wish to participate directly. (2) **Owner-initiated** (secondary flow): the care recipient creates their own account and Household, then invites the delegate as an Insurance Manager. Both flows produce the same Household Membership / User Role state. | Should | Both initiation flows result in identical access. An Insurance Manager with no plan membership in the Household can fully manage it. A Contributor can submit receipts and view status but cannot edit plan configuration or COB rules. |
 
 ### Maximum and Balance Tracking
 
 | ID | Requirement | Priority | Acceptance Criteria |
 |----|-------------|----------|---------------------|
 | FR-050 | Track remaining annual maximum per plan, per benefit category, per covered person. | Must | After each paid claim, the relevant maximum is decremented by the amount paid. |
-| FR-051 | Reset annual maximums at the plan year boundary. | Must | On the plan year start date, maximums reset to their configured values. |
+| FR-051 | Reset annual maximums at the plan year boundary. During the submission grace period (configured per plan in FR-041), claims for expenses incurred in the prior plan year can still be submitted and are counted against the prior year's maximums, not the new year's. | Must | On the plan year start date, maximums reset. Claims submitted during the grace period with a service date in the prior plan year are applied against the prior year's maximums. |
 | FR-052 | Track HCSA balance: total allocation, amount claimed, and remaining balance. | Must | HCSA balance is decremented as HCSA claims are paid. Remaining balance is visible to the user. |
 | FR-053 | Display remaining coverage across all plans and categories for any family member, on demand. | Must | User can view a coverage summary showing remaining maximums per category per plan per person. |
 | FR-054 | Alert the user when a benefit category maximum is approaching exhaustion (configurable threshold, e.g., less than 20% or less than one session's worth remaining). | Should | Alert is triggered before the maximum is hit, giving the user time to plan. |
@@ -119,7 +124,9 @@ flowchart TD
 
 | ID | Requirement | Priority | Acceptance Criteria |
 |----|-------------|----------|---------------------|
-| FR-060 | Store receipts and EOBs linked to specific expenses and submissions. | Must | Every stored document is associated with an expense and, where applicable, a specific submission. |
+| FR-060 | Store Supporting Documents (receipts, EOBs, referrals) linked to specific expenses and submissions. | Must | Every stored document is associated with an expense and, where applicable, a specific submission. |
+
+> **Architectural note**: The storage strategy for documents -- embedded binary storage, local filesystem references, or cloud storage references (e.g., Dropbox, Google Drive) -- is a solution-level decision constrained by NFR-001 through NFR-007 (privacy principles). A reference-based model (where Coordinate stores a link but not the file itself) may be preferable for privacy and operator trust-surface reasons. This choice is deferred to the solution phase.
 | FR-061 | Support receipt capture via photo (mobile) and file upload (desktop). Accepted formats: JPEG, PNG, PDF. | Must | Documents can be attached from both mobile and desktop entry points. |
 | FR-062 | Retain all claim-related documents per the retention floor in NFR-006. | Must | Documents cannot be deleted within the retention window unless the user explicitly overrides with acknowledgement. |
 
@@ -128,7 +135,7 @@ flowchart TD
 | ID | Requirement | Priority | Acceptance Criteria |
 |----|-------------|----------|---------------------|
 | FR-070 | Notify the user when a submission has been resolved (paid or rejected) and a follow-up action is needed. | Must | Alert is generated when an expense transitions to a state requiring user action. |
-| FR-071 | Notify the user when a claim submission deadline is approaching. Deadlines are configured per plan (typically 12-18 months from service date). | Should | Alert fires at a configurable lead time (e.g., 60 days) before the deadline. |
+| FR-071 | Notify the user when a claim submission deadline is approaching. Two deadline types apply: (1) the insurer's absolute submission deadline from service date (typically 12-18 months), and (2) the plan year grace period end date, after which prior-year claims can no longer be submitted. | Should | Alerts fire at a configurable lead time (e.g., 60 days) before each deadline type. Both deadlines are surfaced distinctly so the user can prioritise prior-year claims during the grace window. |
 | FR-072 | Notify the user when unused benefit coverage or HCSA balance is at risk of expiring before the plan year ends. | Should | Alert fires at a configurable point before plan year end, listing unused benefits by category. |
 | FR-073 | Notify the user when a benefit category annual maximum is approaching exhaustion for a frequently-used category. | Should | Alert fires when remaining maximum falls below a configurable threshold. |
 
@@ -140,6 +147,18 @@ flowchart TD
 | FR-081 | Provide an expense history view filterable by family member, expense category, plan, and date range. | Must | User can filter and view any subset of historical expenses and their claim outcomes. |
 | FR-082 | Provide an HCSA utilisation summary for the current and prior plan years: allocation, claimed, paid, and remaining. | Should | Summary is available per HCSA. |
 | FR-083 | Provide a benefit utilisation summary for the current plan year: remaining maximums by category and plan. | Should | Summary covers all configured plans and categories. |
+
+### Insurer Integration
+
+Insurer interaction is delivered as three progressive capability tiers. Higher tiers depend on insurer API availability and portal stability, which varies by insurer and must be evaluated during solution design.
+
+| ID | Requirement | Priority | Acceptance Criteria |
+|----|-------------|----------|---------------------|
+| FR-090 | For each submission, provide step-by-step guidance specific to the insurer and plan type: which portal or submission channel to use, which documents to attach, and which fields to complete. | Must | Guidance is shown before the user begins each submission. Content is specific to the insurer (not generic). |
+| FR-091 | Retrieve claim status from insurer portals or APIs and update the corresponding submission state automatically. | Should | Submission state is updated without manual user input when the insurer adjudicates the claim. |
+| FR-092 | Submit claims to insurer portals or APIs on the user's behalf. | Could | A claim can be submitted end-to-end by the system without the user navigating the insurer portal. |
+
+> **Architectural note**: FR-091 and FR-092 may require browser automation where APIs are unavailable. Feasibility is insurer-specific and may be revisited as integration surface is explored during solution design. Insurers that cannot be automated fall back to FR-090 (guided manual submission).
 
 ---
 
@@ -158,3 +177,7 @@ flowchart TD
 | FR-073 (limit alerts) | FR-050 (max tracking) | Alerts compare remaining maximum to configured threshold. |
 | FR-080 (year-end report) | FR-032, FR-033 | Out-of-pocket amounts come from closed expenses. |
 | FR-056 (utilisation planning) | FR-050 (max tracking) | Projection requires current remaining maximum state. |
+| FR-090 (submission guidance) | FR-041 (plan config) | Guidance is specific to the insurer configured on the plan. |
+| FR-091 (status retrieval) | FR-020, FR-090 | Status retrieval is an enhancement of the submission tracking flow. |
+| FR-070 (action alerts) | FR-091 | Automated status retrieval enables alerts without manual outcome entry. |
+| FR-071 (deadline alerts) | FR-041 (grace period), FR-051 (plan year) | Grace period end date is a key deadline type surfaced by FR-071. |

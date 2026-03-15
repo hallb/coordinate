@@ -2,16 +2,18 @@
 
 ## Stakeholders
 
-| ID | Stakeholder | Type | Interest | Influence |
-|---|---|---|---|---|
-| STK-001 | Plan members (families) | Primary user | High | High |
-| STK-002 | Insurers | Affected party | Medium | High |
-| STK-003 | HCSA/PHSP administrators | Affected party | Medium | High |
-| STK-004 | Privacy regulators (PIPEDA, provincial) | Regulatory | Low | High |
-| STK-005 | CLHIA | Standards body | Low | High |
-| STK-006 | CRA | Regulatory | Low | Medium |
-| STK-007 | Health care providers | Passive / indirect | Low | Low |
-| STK-008 | Product team | Builder | High | High |
+
+| ID      | Stakeholder                             | Type               | Interest | Influence |
+| ------- | --------------------------------------- | ------------------ | -------- | --------- |
+| STK-001 | Plan members (families)                 | Primary user       | High     | High      |
+| STK-002 | Insurers                                | Affected party     | Medium   | High      |
+| STK-003 | HCSA/PHSP administrators                | Affected party     | Medium   | High      |
+| STK-004 | Privacy regulators (PIPEDA, provincial) | Regulatory         | Low      | High      |
+| STK-005 | CLHIA                                   | Standards body     | Low      | High      |
+| STK-006 | CRA                                     | Regulatory         | Low      | Medium    |
+| STK-007 | Health care providers                   | Passive / indirect | Low      | Low       |
+| STK-008 | Product team                            | Builder            | High     | High      |
+
 
 ### STK-001 · Plan Members (Families)
 
@@ -79,10 +81,13 @@ Not applicable in the traditional sense -- Coordinate does not have organization
 
 ## Decision Authority
 
-| Decision Area | Responsible | Accountable | Consulted | Informed |
-|---|---|---|---|---|
-| Product direction and scope | STK-008 | STK-008 | STK-001 (via feedback) | -- |
-| COB rule implementation | STK-008 | STK-008 | STK-005 guidelines | -- |
-| Privacy and data handling | STK-008 | STK-008 | Privacy legal counsel | STK-004 |
-| Insurer integration approach | STK-008 | STK-008 | -- | STK-002 (if API-based) |
-| HCSA eligible expense rules | STK-008 | STK-008 | STK-006 guidelines | -- |
+
+| Decision Area                | Responsible | Accountable | Consulted              | Informed               |
+| ---------------------------- | ----------- | ----------- | ---------------------- | ---------------------- |
+| Product direction and scope  | STK-008     | STK-008     | STK-001 (via feedback) | --                     |
+| COB rule implementation      | STK-008     | STK-008     | STK-005 guidelines     | --                     |
+| Privacy and data handling    | STK-008     | STK-008     | Privacy legal counsel  | STK-004                |
+| Insurer integration approach | STK-008     | STK-008     | --                     | STK-002 (if API-based) |
+| HCSA eligible expense rules  | STK-008     | STK-008     | STK-006 guidelines     | --                     |
+
+
