@@ -32,32 +32,44 @@ The claim lifecycle is modeled as a **pure domain state machine** with well-defi
 
 Onion / ports-and-adapters (hexagonal architecture) — see [ADR-001](adr/001-ports-and-adapters.md) for full rationale.
 
-```mermaid
-flowchart TB
-    subgraph adapters ["Adapter Layer"]
-        UI["PWA Frontend"]
-        Storage["IndexedDB / SQLite-WASM"]
-        Extension["Browser Extension (Phase 6)"]
-        AIAdapt["AI Adapters (future)"]
-    end
+![Architecture Overview](diagrams/architecture-overview.png)
 
-    subgraph application ["Application Layer"]
-        UseCases["Use Cases"]
-    end
+<details>
+<summary>PlantUML source</summary>
 
-    subgraph domain ["Core Domain"]
-        Routing["RoutingEngine"]
-        StateMachine["ClaimStateMachine"]
-        Balance["BalanceTracker"]
-        Ports["Port Interfaces"]
-    end
-
-    UI --> UseCases
-    Extension --> UseCases
-    UseCases --> Routing
-    UseCases --> StateMachine
-    UseCases --> Balance
-    UseCases --> Ports
-    Storage -.->|implements| Ports
-    AIAdapt -.->|implements| Ports
 ```
+@startuml diagrams/architecture-overview
+skinparam packageStyle rectangle
+
+package "Adapter Layer" as adapters {
+  [PWA Frontend]
+  [CLI (NFR-034)]
+  [IndexedDB / SQLite-WASM]
+  [Browser Extension (Phase 6)]
+  [AI Adapters (future)]
+}
+
+package "Application Layer" as application {
+  [Use Cases]
+}
+
+package "Core Domain" as domain {
+  [RoutingEngine]
+  [ClaimStateMachine]
+  [BalanceTracker]
+  [Port Interfaces]
+}
+
+[PWA Frontend] --> [Use Cases]
+[CLI (NFR-034)] --> [Use Cases]
+[Browser Extension (Phase 6)] --> [Use Cases]
+[Use Cases] --> [RoutingEngine]
+[Use Cases] --> [ClaimStateMachine]
+[Use Cases] --> [BalanceTracker]
+[Use Cases] --> [Port Interfaces]
+[IndexedDB / SQLite-WASM] ..> [Port Interfaces] : implements
+[AI Adapters (future)] ..> [Port Interfaces] : implements
+@enduml
+```
+
+</details>

@@ -10,30 +10,49 @@ The organizing principle is:
 
 An expense has an original amount. Each successful submission reduces the remaining balance. The system determines the "next applicable plan" by evaluating COB priority rules, expense category eligibility, remaining annual maximums, and the HCSA-last-payer rule. The loop continues until the balance reaches zero (fully reimbursed) or no more applicable plans exist (out-of-pocket remainder).
 
-```mermaid
-flowchart TD
-    newExpense["New Expense (full balance)"] --> findNext["Find next applicable plan"]
-    findNext --> hasNext{Plan available?}
-    hasNext -->|Yes| submit["Submit claim"]
-    submit --> adjudicate{Outcome?}
-    adjudicate -->|"Paid (full)"| closed["Closed (balance = 0)"]
-    adjudicate -->|"Paid (partial)"| updateBal["Update balance with remainder"]
-    adjudicate -->|Rejected| handleReject{Fixable?}
-    adjudicate -->|Audit| waitAudit["Wait for audit resolution"]
-    adjudicate -->|"Limit hit"| markExhausted["Mark plan exhausted for this category/person/year"]
-    waitAudit --> adjudicate
-    updateBal --> findNext
-    handleReject -->|Yes| resubmit["Fix and resubmit to same plan"]
-    resubmit --> adjudicate
-    handleReject -->|No| markExhausted
-    markExhausted --> eobRequired{"EOB from exhausted\nplan required?"}
-    eobRequired -->|"Yes (config)"| getEOB["Submit to exhausted plan\nto obtain EOB"]
-    eobRequired -->|"No (config)"| findNext
-    eobRequired -->|"Ask"| userDecide["User decides:\nobtain EOB or skip"]
-    getEOB --> findNext
-    userDecide --> findNext
-    hasNext -->|"No plans left"| closedOOP["Closed (out-of-pocket remainder)"]
+![Claim Lifecycle States](diagrams/claim-lifecycle-states.png)
+
+<details>
+<summary>PlantUML source</summary>
+
 ```
+@startuml diagrams/claim-lifecycle-states
+title Claim Lifecycle State Machine
+
+state "Awaiting Adjudication" as awaiting {
+  [*] --> submitted
+  submitted --> processing : insurer acknowledges
+}
+
+state "Cascade Decision" as cascade {
+  paid_partial : Paid partial
+  rejected_final : Rejected (final)
+  limit_hit : Limit hit
+}
+
+[*] --> awaiting : claim submitted to plan
+
+awaiting --> paid_full : adjudicated, full payment
+awaiting --> cascade : adjudicated / rejected / limit hit
+awaiting --> rejected_fixable : rejected, correctable
+awaiting --> audit : flagged for audit
+
+rejected_fixable --> awaiting : corrected, resubmitted (same plan)
+
+audit --> paid_full : audit resolved
+audit --> cascade : audit resolved (partial / rejected)
+
+cascade --> awaiting : [next plan] cascade continues
+cascade --> closed_oop : [no next plan]
+
+paid_full --> closed_zero : balance = 0
+
+closed_zero --> [*]
+closed_oop --> [*]
+@enduml
+```
+
+</details>
 
 **Claim states:**
 

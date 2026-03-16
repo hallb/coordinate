@@ -9,6 +9,7 @@
 | Vite         | 6.x     | Build tool and dev server for PWA                                      |
 | UI framework | TBD     | Frontend component framework (React, Svelte, or Solid — to be decided) |
 | Vitest       | 3.x     | Unit and integration test runner                                       |
+| Stryker      | 8.x     | Mutation testing (`@stryker-mutator/vitest-runner`)                    |
 
 
 ### UI framework decision (pending)
@@ -83,6 +84,7 @@ None for MVP. The product has zero runtime service dependencies.
 | Prettier            | Code formatting                 |
 | TypeScript compiler | Type checking                   |
 | Playwright          | E2E testing (browser)           |
+| Stryker             | Mutation testing                |
 | GitHub Actions      | CI/CD pipeline                  |
 | axe / Lighthouse    | Accessibility testing (NFR-060) |
 

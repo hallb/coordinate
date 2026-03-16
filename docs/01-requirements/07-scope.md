@@ -32,21 +32,31 @@ The following are adjacent to the core problem but out of scope for now. They co
 
 Requirements are grouped into phases that each deliver usable, testable value. Phases are ordered by dependency, not calendar schedule. Target timelines are deferred until the solution phase.
 
-```mermaid
-flowchart TD
-    P1["Phase 1: Core Claim Lifecycle (MVP)"]
-    P2["Phase 2: Proactive Guidance"]
-    P3["Phase 3: Reporting"]
-    P4["Phase 4: Multi-User and Delegation"]
-    P5["Phase 5: Refinements"]
-    P6["Phase 6: Insurer Automation"]
+![Phase Dependencies](diagrams/phase-dependencies.png)
 
-    P1 --> P2
-    P1 --> P3
-    P1 --> P4
-    P1 --> P5
-    P2 --> P6
+<details>
+<summary>PlantUML source</summary>
+
 ```
+@startuml diagrams/phase-dependencies
+left to right direction
+
+rectangle "Phase 1: Core Claim Lifecycle (MVP)" as P1
+rectangle "Phase 2: Proactive Guidance" as P2
+rectangle "Phase 3: Reporting" as P3
+rectangle "Phase 4: Multi-User and Delegation" as P4
+rectangle "Phase 5: Refinements" as P5
+rectangle "Phase 6: Insurer Automation" as P6
+
+P1 --> P2
+P1 --> P3
+P1 --> P4
+P1 --> P5
+P2 --> P6
+@enduml
+```
+
+</details>
 
 ### Phase 1 — Core Claim Lifecycle (MVP)
 

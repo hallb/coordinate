@@ -6,27 +6,54 @@ Consistent terminology used across all requirements documents. This is the autho
 
 This diagram shows the key concepts of the problem domain and their relationships. It is a problem-domain model, not a data or implementation model -- it describes *what exists* in the domain, not how the system will store or process it.
 
-```mermaid
-erDiagram
-    Person ||--o{ HouseholdMembership : "belongs to households via"
-    Household ||--o{ HouseholdMembership : "has members via"
-    HouseholdMembership ||--o| UserRole : "carries role (if System User)"
-    Person ||--o{ Insured : "is primary subscriber via"
-    Person ||--o{ Beneficiary : "is covered as dependent via"
-    Insured ||--|| PlanMembership : "is a"
-    Beneficiary ||--|| PlanMembership : "is a"
-    InsurancePlan ||--o{ PlanMembership : "has members via"
-    InsurancePlan ||--o{ BenefitCategory : defines
-    BenefitCategory ||--o{ AnnualMaximum : "has limit per covered person"
-    InsurancePlan ||--o{ COBRelationship : "participates in"
-    Person ||--o{ Expense : incurs
-    Expense ||--o{ Submission : "claimed via"
-    Submission ||--o| ExplanationOfBenefits : produces
-    ExplanationOfBenefits }o--o| Submission : "supports next"
-    Expense ||--o{ SupportingDocument : documented_by
-    InsurancePlan ||--o{ Submission : receives
-    Person ||--o| SystemUser : "may have account"
+![Conceptual Domain Model](diagrams/domain-model.png)
+
+<details>
+<summary>PlantUML source</summary>
+
 ```
+@startuml diagrams/domain-model
+skinparam linetype ortho
+
+entity Person
+entity Household
+entity HouseholdMembership
+entity UserRole
+entity Insured
+entity Beneficiary
+entity PlanMembership
+entity InsurancePlan
+entity BenefitCategory
+entity AnnualMaximum
+entity COBRelationship
+entity Expense
+entity Submission
+entity ExplanationOfBenefits
+entity SupportingDocument
+entity SystemUser
+
+Person ||--o{ HouseholdMembership : "belongs to households via"
+Household ||--o{ HouseholdMembership : "has members via"
+HouseholdMembership ||--o| UserRole : "carries role (if System User)"
+Person ||--o{ Insured : "is primary subscriber via"
+Person ||--o{ Beneficiary : "is covered as dependent via"
+Insured ||--|| PlanMembership : "is a"
+Beneficiary ||--|| PlanMembership : "is a"
+InsurancePlan ||--o{ PlanMembership : "has members via"
+InsurancePlan ||--o{ BenefitCategory : defines
+BenefitCategory ||--o{ AnnualMaximum : "has limit per covered person"
+InsurancePlan ||--o{ COBRelationship : "participates in"
+Person ||--o{ Expense : incurs
+Expense ||--o{ Submission : "claimed via"
+Submission ||--o| ExplanationOfBenefits : produces
+ExplanationOfBenefits }o--o| Submission : "supports next"
+Expense ||--o{ SupportingDocument : documented_by
+InsurancePlan ||--o{ Submission : receives
+Person ||--o| SystemUser : "may have account"
+@enduml
+```
+
+</details>
 
 ## Glossary
 
