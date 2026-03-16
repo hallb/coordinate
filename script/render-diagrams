@@ -1,0 +1,16 @@
+#!/bin/sh
+set -e
+cd "$(dirname "$0")/.."
+./script/bootstrap
+
+if [ -n "$1" ]; then
+  echo "Rendering diagrams in $1..."
+  plantuml -tpng "$1"
+else
+  echo "Rendering all diagrams..."
+  find docs -name "*.md" | while read -r f; do
+    echo "  $f"
+    plantuml -tpng "$f" || true
+  done
+fi
+echo "Done."

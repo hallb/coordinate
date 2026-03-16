@@ -1,0 +1,61 @@
+---
+description: PlantUML diagramming conventions — embed source in markdown, hide in details, render with script/render-diagrams.
+globs: docs/**/*.md
+alwaysApply: false
+---
+
+# PlantUML Diagrams
+
+Use PlantUML for all architecture and flow diagrams. Embed the source directly in each markdown file. Do not use separate `.puml` files.
+
+## Markdown convention
+
+The image tag appears first (visible). The PlantUML source is hidden in a `<details>` block. The `@startuml` line includes the output path: `@startuml diagrams/name`. PlantUML writes to `diagrams/name.png` in the same directory as the markdown file.
+
+```markdown
+![Diagram Title](diagrams/name.png)
+
+<details>
+<summary>PlantUML source</summary>
+
+```
+@startuml diagrams/name
+...diagram content...
+@enduml
+```
+
+</details>
+```
+
+Use plain fenced code blocks (not `plantuml` language tag). PlantUML finds `@startuml`/`@enduml` by text scan.
+
+## Do NOT use HTML comments or hidden divs for PlantUML source
+
+The `-->` arrow in PlantUML breaks HTML comment parsing (`<!-- -->`). Use `<details>` blocks instead — they safely contain any PlantUML syntax.
+
+## Regenerating images
+
+Run `./script/render-diagrams` to regenerate all diagrams, or `./script/render-diagrams docs/path/to/file.md` for a single file. The script installs `plantuml` via apt if not already present. Commit the generated PNGs so GitHub renders them.
+
+## C4 diagrams
+
+PlantUML's stdlib includes C4 macros. Use:
+
+- `!include <C4/C4_Context>` for context diagrams
+- `!include <C4/C4_Container>` for container diagrams
+- `!include <C4/C4_Component>` for component diagrams
+
+Example:
+
+```
+@startuml diagrams/system-context
+!include <C4/C4_Context>
+
+Person(user, "Insurance Manager", "Manages family claims")
+System(coordinate, "Coordinate PWA", "Local-first web app")
+System_Ext(insurer, "Insurer Portals", "Sun Life, Manulife, etc.")
+
+Rel(user, coordinate, "Uses")
+Rel(user, insurer, "Submits claims")
+@enduml
+```

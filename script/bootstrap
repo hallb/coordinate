@@ -1,0 +1,10 @@
+#!/bin/sh
+set -e
+cd "$(dirname "$0")/.."
+
+if ! command -v plantuml >/dev/null 2>&1; then
+  echo "Installing PlantUML..."
+  sudo apt-get update -qq && sudo apt-get install -y plantuml
+fi
+
+echo "Bootstrap complete."
