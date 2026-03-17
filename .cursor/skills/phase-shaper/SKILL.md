@@ -106,3 +106,11 @@ Before considering a phase "shaped":
 | Plan is vague | "Set up storage" → "Create Dexie schema for persons, households, insurance_plans, expenses" |
 | FR mapping implicit | "Implements plan config" → "FR-040, FR-041, FR-042" (exact IDs) |
 | Verification vague | "Test routing" → "Run RoutingEngine.test.ts — birthday rule scenarios pass" |
+
+## Future Considerations
+
+When this skill (and related rules) is eventually refactored for reuse across projects, phase shaping for parallel teams must account for **Conway's Law** — the architecture of the system will tend to mirror the communication structure of the teams building it.
+
+Concretely: if two teams work on parallel phases, the boundary between those phases (ports, interfaces, data contracts) is likely to become a persistent architectural seam. That seam should be a deliberate design decision, not an accidental byproduct of how work was divided.
+
+This applies both to team-to-team interfaces (e.g. which team owns which layer/aggregate) and to AI-agent-to-agent coordination patterns if the skill is used in multi-agent workflows.
