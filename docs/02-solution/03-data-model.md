@@ -25,7 +25,7 @@ hide empty methods
 package "Person Aggregate" as PA {
     class Person <<root>> {
         id: PersonId
-        name: string
+        name: PersonName
         dateOfBirth: CalendarDate
     }
 }
@@ -206,6 +206,7 @@ Cross-household COB (e.g., a Person with coverage in multiple Households per PER
 
 | Type | Definition | Examples |
 |------|------------|---------|
+| PersonName | Value object: `givenName`, `familyName` (required), `additionalNames` (optional). Display: `${givenName} ${familyName}`. Maps to First/Last Name fields on insurer forms. | `{ givenName: "Mira", familyName: "Jones" }` |
 | Money | Non-negative decimal amount in CAD. Precision: 2 decimal places. | `125.00`, `0.00` |
 | CalendarDate | Date without time zone, ISO 8601 format. | `2026-03-15` |
 | MonthDay | Month and day only (for plan year start, birthday rule). | `01-01`, `09-15` |
@@ -224,7 +225,7 @@ Cross-household COB (e.g., a Person with coverage in multiple Households per PER
 | Field | Type | Constraints | Notes |
 |-------|------|-------------|-------|
 | id | PersonId (UUID) | PK, immutable | |
-| name | string | Required, non-empty | Display name; no formal given/family split for MVP |
+| name | PersonName | Required | givenName + familyName; maps to insurer form fields |
 | dateOfBirth | CalendarDate | Required | Used for Birthday Rule (GLO-022) |
 | systemUserId | SystemUserId? | Optional, unique | Links to authentication identity (Phase 4+) |
 
@@ -362,6 +363,111 @@ Invariant: `sum(amountPaid) ≤ originalAmount` (NFR-008, FR-023).
 | uri | string | Required, non-empty | Local file path or cloud storage URL (NFR-051) |
 | type | DocumentType | Required | Receipt, EOB, Referral, Prescription, LabRequisition |
 
+## Illustrative Object Snapshots
+
+Concrete object instances for specific scenarios, showing real field values rather than types. Each snapshot is a valid state of the domain model and can be used to verify that the class model is expressive enough to represent real situations.
+
+### S-001 · Ben's Household — Persons and Household configuration
+
+Five-person household, two employed adults with separate plans, three dependents. InsurancePlan objects (PlanMemberships, BenefitCategories) are deferred to S-002; COBRelationship participantRefs reference plan IDs that will be defined there.
+
+![S-001 Household object diagram](diagrams/s001-household.png)
+
+<details>
+<summary>PlantUML source</summary>
+
+```
+@startuml diagrams/s001-household
+skinparam linetype ortho
+hide empty methods
+
+object "ben : Person" as ben {
+  id = "p-001"
+  name.givenName = "Ben"
+  name.familyName = "Hall"
+  dateOfBirth = 1982-04-15
+  systemUserId = "su-001"
+}
+
+object "sobia : Person" as sobia {
+  id = "p-002"
+  name.givenName = "Sobia"
+  name.familyName = "Hall"
+  dateOfBirth = 1984-09-22
+  systemUserId = "su-002"
+}
+
+object "gabriel : Person" as gabriel {
+  id = "p-003"
+  name.givenName = "Gabriel"
+  name.familyName = "Hall"
+  dateOfBirth = 2012-03-10
+}
+
+object "mira : Person" as mira {
+  id = "p-004"
+  name.givenName = "Mira"
+  name.familyName = "Hall"
+  dateOfBirth = 2008-01-15
+}
+
+object "anisa : Person" as anisa {
+  id = "p-005"
+  name.givenName = "Anisa"
+  name.familyName = "Hall"
+  dateOfBirth = 2008-01-15
+}
+
+object "hall_household : Household" as household {
+  id = "h-001"
+  name = "Hall Family"
+}
+
+object "hm_ben : HouseholdMembership" as hm_ben {
+  id = "hm-001"
+  role = InsuranceManager
+}
+
+object "hm_sobia : HouseholdMembership" as hm_sobia {
+  id = "hm-002"
+  role = Contributor
+}
+
+object "hm_gabriel : HouseholdMembership" as hm_gabriel {
+  id = "hm-003"
+}
+
+object "hm_mira : HouseholdMembership" as hm_mira {
+  id = "hm-004"
+}
+
+object "hm_anisa : HouseholdMembership" as hm_anisa {
+  id = "hm-005"
+}
+
+household *-- hm_ben
+household *-- hm_sobia
+household *-- hm_gabriel
+household *-- hm_mira
+household *-- hm_anisa
+
+hm_ben --> ben : personId
+hm_sobia --> sobia : personId
+hm_gabriel --> gabriel : personId
+hm_mira --> mira : personId
+hm_anisa --> anisa : personId
+
+note right of hm_gabriel
+  role omitted: Gabriel, Mira, and Anisa are not
+  SystemUsers. The authorization model for role
+  across Households is under review.
+end note
+
+@enduml
+```
+
+</details>
+
 ## Storage Strategy
 
 The PWA stores all aggregate state locally. There is no backend database for MVP.
@@ -372,7 +478,7 @@ Each aggregate root maps to an IndexedDB object store (or SQLite table if using 
 
 | Aggregate | Object Store / Table | Key | Indexes |
 |-----------|---------------------|-----|---------|
-| Person | `persons` | `id` | `name` |
+| Person | `persons` | `id` | `familyName`, `givenName` |
 | Household | `households` | `id` | — |
 | InsurancePlan | `insurance_plans` | `id` | `householdId`, `planType`, `active` |
 | Expense | `expenses` | `id` | `householdId`, `personId`, `serviceDate`, `category` |
