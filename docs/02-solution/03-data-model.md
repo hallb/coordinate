@@ -36,7 +36,6 @@ package "Household Aggregate" as HA {
     }
     class HouseholdMembership <<entity>> {
         personId: PersonId
-        role: UserRole
     }
     class ExternalCoverage <<entity>> {
         id: ExternalCoverageId
@@ -137,7 +136,7 @@ Submission ..> ExternalCoverage : externalCoverageId?
 | Aggregate | Root | Internal Entities | Key Value Objects | Key Invariants |
 |-----------|------|-------------------|-------------------|----------------|
 | Person | Person | — | CalendarDate | Single identity across households (GLO-002, FR-040) |
-| Household | Household | HouseholdMembership, COBRelationship, ExternalCoverage | UserRole, COBPriorityBasis, CobParticipantRef | ≥ 1 Insurance Manager (NFR-044); COBRelationship references only plans and ExternalCoverage scoped to this household |
+| Household | Household | HouseholdMembership, COBRelationship, ExternalCoverage | COBPriorityBasis, CobParticipantRef | COBRelationship references only plans and ExternalCoverage scoped to this household |
 | InsurancePlan | InsurancePlan | PlanMembership, BenefitCategory | AnnualMaximum, PlanType, PlanYear | AnnualMaximum.used ≤ AnnualMaximum.limit; all PlanMembership persons exist |
 | Expense | Expense | Submission | DocumentRef, ClaimState, Money | No-overclaim: sum of amountPaid across submissions ≤ originalAmount (NFR-008); valid state transitions only (ADR-002) |
 
@@ -158,13 +157,13 @@ These are domain services because they coordinate logic across aggregate boundar
 
 **Rationale**: A Person has a single identity across the system (GLO-002). A Person may belong to multiple Households via HouseholdMembership (GLO-033, FR-040). If Person were internal to Household, each Household would hold its own copy, violating the "no duplicate Person records" requirement (FR-040). Person is also referenced by Expense (the person who incurred it), by PlanMembership (the person covered by a plan), and by AnnualMaximum (the person whose limit is tracked). All of these are cross-aggregate references by PersonId.
 
-**Lifecycle**: Created when a user adds a family member. Persists independently of any Household — removing a Person from a Household does not delete them if they belong to another Household. A Person may optionally have a SystemUser identity (GLO-006) for authentication; this is modeled as an optional SystemUserId reference, with authentication concerns handled outside the domain (Phase 4+).
+**Lifecycle**: Created when the Operator adds a family member. Persists independently of any Household — removing a Person from a Household does not delete them if they belong to another Household. Phase 4 will introduce identity references for multi-user access (see ADR-010).
 
 ### Household
 
 **Boundary decision**: Household is an aggregate root containing HouseholdMembership, COBRelationship, and ExternalCoverage as internal entities.
 
-**Rationale**: HouseholdMembership is scoped to a single Household and has no meaning outside it — it represents "this Person belongs to this Household with this role." COBRelationship is similarly scoped: it defines the coordination order between plans and ExternalCoverage within this Household (GLO-020, FR-042, GLO-035). ExternalCoverage records lightweight references to coverage a Person has outside this Household — enough for COB ordering, without plan details (limits, utilization). Both are configuration entities that change infrequently and are always accessed in the context of their Household.
+**Rationale**: HouseholdMembership is scoped to a single Household and has no meaning outside it — it represents "this Person belongs to this Household." COBRelationship is similarly scoped: it defines the coordination order between plans and ExternalCoverage within this Household (GLO-020, FR-042, GLO-035). ExternalCoverage records lightweight references to coverage a Person has outside this Household — enough for COB ordering, without plan details (limits, utilization). Both are configuration entities that change infrequently and are always accessed in the context of their Household.
 
 The Household aggregate represents the family unit's configuration: who is in it, and how their plans coordinate. This is the natural consistency boundary for operations like "add a family member and set up their COB relationships" — both should succeed or fail atomically.
 
@@ -194,9 +193,9 @@ The Household aggregate represents the family unit's configuration: who is in it
 
 **DocumentRef** is a value object. Documents are stored by reference (NFR-051) — a URI pointing to a local file or cloud storage. The actual document bytes are external to the domain. DocumentRef appears on both Expense (supporting documents like receipts) and Submission (EOB reference). ExplanationOfBenefits metadata (amount claimed, amount paid, denial reasons per GLO-028) is captured directly on the Submission entity; the EOB document itself is just a DocumentRef.
 
-### Household as Data Isolation Boundary
+### Household as Data Scoping Boundary
 
-Household is the **attribute-based access control (ABAC) boundary** for all domain data (NFR-045). Plan data — coverage limits, utilization tracking, claim status, and data retrieved via browser extension (FR-091, FR-092) — is scoped to the Household that owns the relevant InsurancePlan. Plan data is never accessible from another Household, even if the same Person belongs to both.
+Household is the **data scoping boundary** for all domain data. Plan data — coverage limits, utilization tracking, claim status, and data retrieved via browser extension (FR-091, FR-092) — is scoped to the Household that owns the relevant InsurancePlan. Data from one Household is not shown when operating in another Household context (UI navigation). Phase 4 will introduce access control; until then, the Operator has full access to all data on the device (ADR-010).
 
 Cross-household COB (e.g., a Person with coverage in multiple Households per PER-001 Mira scenario) is handled via **ExternalCoverage + document sharing**, not plan data sharing. When Ben enters an expense for Mira in his Household after she has processed it through her spouse's plan in her own Household, he records the outcome via FR-046 (pre-recorded external submission) and attaches the EOB. The RoutingEngine picks up from the remainder through Ben's Household's plans. No plan data from Mira's Household crosses the boundary.
 
@@ -213,7 +212,6 @@ Cross-household COB (e.g., a Person with coverage in multiple Households per PER
 | PlanYear | A specific 12-month benefit period, identified by start date. | `2026-01-01` (for a plan year starting Jan 1, 2026) |
 | PlanType | Enum: `GroupHealth`, `GroupDental`, `HCSA`, `PHSP` | |
 | MembershipRole | Enum: `Insured`, `Beneficiary` | |
-| UserRole | Enum: `InsuranceManager`, `Contributor` | |
 | COBPriorityBasis | Enum: `Standard` (CLHIA rules apply), `Explicit` (user-configured order) | |
 | ClaimState | Enum: `submitted`, `processing`, `paid_full`, `paid_partial`, `rejected_fixable`, `rejected_final`, `audit`, `limit_hit`, `closed_zero`, `closed_oop` | Per GLO-027 |
 | DocumentType | Enum: `Receipt`, `EOB`, `Referral`, `Prescription`, `LabRequisition` | Per GLO-034 |
@@ -227,7 +225,6 @@ Cross-household COB (e.g., a Person with coverage in multiple Households per PER
 | id | PersonId (UUID) | PK, immutable | |
 | name | PersonName | Required | givenName + familyName; maps to insurer form fields |
 | dateOfBirth | CalendarDate | Required | Used for Birthday Rule (GLO-022) |
-| systemUserId | SystemUserId? | Optional, unique | Links to authentication identity (Phase 4+) |
 
 ### Household Aggregate
 
@@ -245,9 +242,6 @@ Cross-household COB (e.g., a Person with coverage in multiple Households per PER
 | id | MembershipId (UUID) | PK, immutable | |
 | householdId | HouseholdId | FK → Household, immutable | |
 | personId | PersonId | FK → Person (cross-aggregate) | |
-| role | UserRole | Required | InsuranceManager or Contributor (GLO-007). Only meaningful when Person is a SystemUser. |
-
-Invariant: each Household must have at least one HouseholdMembership with role = InsuranceManager (NFR-044).
 
 **ExternalCoverage**
 
@@ -386,7 +380,6 @@ object "ben : Person" as ben {
   name.givenName = "Ben"
   name.familyName = "Hall"
   dateOfBirth = 1982-04-15
-  systemUserId = "su-001"
 }
 
 object "sobia : Person" as sobia {
@@ -394,7 +387,6 @@ object "sobia : Person" as sobia {
   name.givenName = "Sobia"
   name.familyName = "Hall"
   dateOfBirth = 1984-09-22
-  systemUserId = "su-002"
 }
 
 object "gabriel : Person" as gabriel {
@@ -425,12 +417,10 @@ object "hall_household : Household" as household {
 
 object "hm_ben : HouseholdMembership" as hm_ben {
   id = "hm-001"
-  role = InsuranceManager
 }
 
 object "hm_sobia : HouseholdMembership" as hm_sobia {
   id = "hm-002"
-  role = Contributor
 }
 
 object "hm_gabriel : HouseholdMembership" as hm_gabriel {
@@ -456,12 +446,6 @@ hm_sobia --> sobia : personId
 hm_gabriel --> gabriel : personId
 hm_mira --> mira : personId
 hm_anisa --> anisa : personId
-
-note right of hm_gabriel
-  role omitted: Gabriel, Mira, and Anisa are not
-  SystemUsers. The authorization model for role
-  across Households is under review.
-end note
 
 @enduml
 ```

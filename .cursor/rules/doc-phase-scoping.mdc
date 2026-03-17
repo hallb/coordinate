@@ -1,0 +1,45 @@
+---
+description: Phase scoping — solution docs describe current implementation only; requirements describe full vision; future phases get forward references and deferral ADRs, not premature design.
+globs: docs/**/*.md
+alwaysApply: false
+---
+
+# Phase-Scoped Documentation
+
+Solution docs and requirements docs have different scopes across the phased delivery plan.
+
+## Core Principle
+
+> **Requirements describe the destination. Solution docs describe what you're building now, plus the seams you're leaving for what comes next.**
+
+## Requirements (01-requirements/)
+
+Describe the **full vision** across all phases.
+
+- Personas, FRs, NFRs, and glossary terms may describe future-phase behavior.
+- Phase tags (e.g. "Phase 4") must be explicit when an artifact applies to a later phase.
+- No restriction on aspiration — requirements capture desired end-state.
+
+## Solution (02-solution/)
+
+Describe the **current implementation target only**.
+
+- Data models, architecture diagrams, and security designs reflect what is being built now.
+- Future phases get a one-line **forward reference**, not schemas, fields, or invariants.
+- Example: *"Phase 4 will introduce multi-user access; see ADR-010."*
+
+## ADRs
+
+Record **conscious deferrals** when a requirement is not satisfied in the current phase:
+
+- What was considered
+- Why it was deferred
+- Seams left in the current design for future extension
+- What triggers revisiting (e.g. Phase 4 kickoff, sync architecture decision)
+
+## Test
+
+If a concept in a solution doc has **no implementation surface** in the current phase's code, it does not belong there. Move it to:
+
+- A requirement (as a future need)
+- An ADR (as a deferral decision)

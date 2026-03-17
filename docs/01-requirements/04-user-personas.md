@@ -28,6 +28,7 @@ The domain has a natural **primary / secondary user** dynamic. One family member
 - **Frustrations:** Informal receipt handoff to Ben is unreliable -- things get lost. Gets interrupted for 2FA codes when Ben needs portal access to her plans (see PER-001 for full context).
 - **Goals:** Minimal involvement in insurance admin. Confidence that expenses are being handled without needing to track them herself. Not being interrupted for 2FA codes.
 - **Role in system:** Secondary user. Can submit receipts and view claim status, but doesn't configure plans or manage the COB workflow.
+- **Note:** Direct system access (submit receipts, check status) requires Phase 4 multi-user infrastructure (sync layer, identity). Until then, receipt handoff uses out-of-system channels (e.g. texting Ben a photo); Ben enters and tracks (ADR-010).
 
 ### PER-003 · Marco (Single Parent, One Plan + HCSA)
 
@@ -62,7 +63,7 @@ The domain has a natural **primary / secondary user** dynamic. One family member
 - **Frustrations:** Currently logs into Fatima's insurer portal using Fatima's credentials -- feels like a security workaround. No consolidated view of Fatima's claim status alongside her own family's. Fatima sometimes forgets to tell her about a medical expense until weeks later, and receipts get lost.
 - **Goals:** One place to manage both her own family's insurance and her mother's. Confidence that Fatima's expenses are being handled and nothing is falling through the cracks. Eventually, Fatima could be granted Contributor-level access to submit her own receipts directly.
 - **Role in system:** Insurance Manager in Fatima's Household. Not an Insured or Beneficiary in that Household -- purely a delegate. Also an Insurance Manager (or Contributor) in her own family's Household.
-- **Note:** Represents the caregiver/delegate pattern: a System User managing a Household they have no insurance relationship with.
+- **Note:** Represents the caregiver/delegate pattern: a System User managing a Household they have no insurance relationship with. In MVP, Nadia operates both Households from her device (single Operator). Fatima's Contributor access requires Phase 4 (sync + identity) so she can access from her own device (ADR-010).
 
 ## Key Scenarios / User Stories
 
@@ -92,7 +93,7 @@ The domain has a natural **primary / secondary user** dynamic. One family member
 
 - As **PER-005 (Nadia)**, I want to manage my mother Fatima's insurance claims from the same system I use for my own family, switching between Household contexts, so that I don't need a separate tool or login.
 - As **PER-005 (Nadia)**, I want to enter an expense on Fatima's behalf and have the system route it through Fatima's retiree plan, so that I don't need to understand Fatima's plan details from scratch each time.
-- As **PER-005 (Nadia)**, I want to grant Fatima limited access (Contributor) to her own Household in Coordinate, so that she can submit receipts directly when I'm not available.
+- As **PER-005 (Nadia)**, I want to grant Fatima limited access (Contributor) to her own Household in Coordinate, so that she can submit receipts directly when I'm not available. *(Phase 4)*
 
 ### Multi-Household Context
 

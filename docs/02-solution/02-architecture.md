@@ -13,10 +13,9 @@ Coordinate runs on the user's own device in the browser (PWA). It interacts with
 @startuml diagrams/system-context
 !include <C4/C4_Context>
 
-title System Context — Coordinate
+title System Context — Coordinate MVP
 
-Person(user, "Insurance Manager", "Manages family claims across plans")
-Person(contributor, "Contributor", "Submits receipts, views status")
+Person(operator, "Operator", "Manages claims, configures plans, submits and tracks")
 
 System(coordinate, "Coordinate", "Local-first PWA. All data on-device.")
 
@@ -26,11 +25,15 @@ System_Ext(hcsaPortal, "HCSA/PHSP Portals", "Coastal HSA, Benecaid, Olympia, etc
 System_Ext(docStorage, "Document Storage", "Local filesystem, or cloud (Dropbox, iCloud, Google Drive) — optional")
 
 Rel(staticHost, coordinate, "Serves PWA bundle", "HTTPS")
-Rel(user, coordinate, "Manages claims, configures plans")
-Rel(contributor, coordinate, "Submits receipts, checks status")
-Rel(user, insurerPortal, "Submits claims, checks status (manual or via extension)")
-Rel(user, hcsaPortal, "Submits HCSA claims")
+Rel(operator, coordinate, "Manages claims, configures plans, submits and tracks")
+Rel(operator, insurerPortal, "Submits claims, checks status (manual or via extension)")
+Rel(operator, hcsaPortal, "Submits HCSA claims")
 Rel(coordinate, docStorage, "References supporting documents (NFR-051)")
+
+note right of operator
+  Phase 4: Contributor (PER-002) will
+  be a separate actor (ADR-010)
+end note
 @enduml
 ```
 
@@ -42,7 +45,7 @@ Rel(coordinate, docStorage, "References supporting documents (NFR-051)")
 - Insurer interaction is manual (guided by Coordinate). The browser extension is Phase 6.
 - Contributor access (PER-002) is Phase 4.
 - Document storage references are optional (NFR-051); they may point to local filesystem paths or cloud storage.
-- Cross-household COB (when a Person has coverage in multiple Households) is handled via External Coverage (GLO-035) and document sharing — not plan data sharing. See [Data Model](03-data-model.md#household-as-data-isolation-boundary).
+- Cross-household COB (when a Person has coverage in multiple Households) is handled via External Coverage (GLO-035) and document sharing — not plan data sharing. See [Data Model](03-data-model.md#household-as-data-scoping-boundary).
 
 ## Container Diagram
 
@@ -59,8 +62,7 @@ For MVP, the PWA (served as static files) is the sole entry point. The core doma
 
 title Container Diagram — Coordinate MVP
 
-Person(user, "Insurance Manager", "Manages family claims across plans")
-Person(contributor, "Contributor", "Submits receipts, views status")
+Person(operator, "Operator", "Manages claims, configures plans, submits and tracks")
 
 System_Boundary(browser, "User's Browser") {
     Container(pwa, "Coordinate PWA", "TypeScript, Vite + Service Worker", "Single-page app; service worker provides offline support and asset caching")
@@ -73,12 +75,11 @@ System_Ext(hcsaPortal, "HCSA/PHSP Portals", "Coastal HSA, Benecaid, Olympia, etc
 System_Ext(docStorage, "Document Storage", "Local filesystem or cloud (Dropbox, iCloud, Google Drive)")
 
 Rel(staticHost, pwa, "Serves static bundle", "HTTPS")
-Rel(user, pwa, "Manages claims, configures plans", "HTTPS / browser")
-Rel(contributor, pwa, "Submits receipts, checks status", "HTTPS / browser")
+Rel(operator, pwa, "Manages claims, configures plans, submits and tracks", "HTTPS / browser")
 Rel(pwa, storage, "Reads/writes structured data", "IndexedDB API (Dexie.js)")
 Rel(pwa, docStorage, "Resolves document references", "File path or HTTPS")
-Rel(user, insurerPortal, "Submits claims, checks status (manual)", "HTTPS / browser")
-Rel(user, hcsaPortal, "Submits HCSA claims (manual)", "HTTPS / browser")
+Rel(operator, insurerPortal, "Submits claims, checks status (manual)", "HTTPS / browser")
+Rel(operator, hcsaPortal, "Submits HCSA claims (manual)", "HTTPS / browser")
 @enduml
 ```
 

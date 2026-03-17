@@ -109,6 +109,8 @@ Sobia as Contributor, Nadia as caregiver, multi-household context switching. Ort
 
 **Depends on**: Phase 1 (household and plan configuration must exist before access control is meaningful).
 
+**Design debt**: Multi-user access (PER-002 Sobia submitting receipts and checking status, PER-005 Nadia/Fatima contributor access) requires a sync layer and identity system that do not exist in the current architecture. The local-first PWA (ADR-003) stores all data on-device; there is no backend to authenticate against or enforce authorization. The design of Phase 4 — sync mechanism (relay, CRDTs, or backend), identity provider, and delegation flows — depends on architectural decisions not yet made. The current requirements describe the desired end-state behaviour; the mechanism is entirely open. See ADR-010.
+
 **Note**: When a Person belongs to multiple Households (e.g., Mira in Ben's household and her own), cross-household COB is handled via External Coverage (GLO-035, FR-045) and document sharing (EOBs, receipts), not plan data sharing. No plan data crosses the Household boundary. See NFR-045.
 
 ### Phase 5 — Refinements

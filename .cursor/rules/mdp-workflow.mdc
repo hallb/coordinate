@@ -33,3 +33,10 @@ mdp issue log add -p "$PLANNER" --id ISS-N -b "What was done"
 # Batch operations (JSON via stdin)
 echo '[{"id":"ISS-1","status":"Done"}]' | mdp issue batch-update -p "$PLANNER"
 ```
+
+## Phase transitions and skills
+
+When a **milestone is completed** (all linked issues Done), check whether the next milestone's scope requires **solution doc updates**. Per `doc-phase-scoping.mdc`: solution docs (data model, architecture, security) describe the current implementation target only. A phase transition may require updating those docs to add or remove concepts.
+
+- **Shaping a phase**: Use the `phase-shaper` skill when creating or refactoring phases (canonical 8-section structure, MDP issues, FR mapping, solution doc audit).
+- **Executing a phase**: Use the `phase-executor` skill when the user says "execute Phase X" (read MDP, implement, verify, bugs via MDP, approval, phase transition).
