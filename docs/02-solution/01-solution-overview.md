@@ -43,7 +43,7 @@ skinparam packageStyle rectangle
 
 package "Adapter Layer" as adapters {
   [PWA Frontend]
-  [IndexedDB / SQLite-WASM]
+  [IndexedDB (Dexie.js)]
   [Browser Extension (Phase 6)]
   [AI Adapters (future)]
 }
@@ -65,7 +65,7 @@ package "Core Domain" as domain {
 [Use Cases] --> [ClaimStateMachine]
 [Use Cases] --> [BalanceTracker]
 [Use Cases] --> [Port Interfaces]
-[IndexedDB / SQLite-WASM] ..> [Port Interfaces] : implements
+[IndexedDB (Dexie.js)] ..> [Port Interfaces] : implements
 [AI Adapters (future)] ..> [Port Interfaces] : implements
 @enduml
 ```

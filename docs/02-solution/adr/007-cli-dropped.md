@@ -14,7 +14,7 @@ Having two deployment targets with separate data stores creates divergence: the 
 
 ## Decision
 
-Drop the CLI. The PWA is the sole entry point; IndexedDB or SQLite-WASM (via OPFS) is the sole data store.
+Drop the CLI. The PWA is the sole entry point; IndexedDB via Dexie.js is the sole data store (ADR-009).
 
 ## Alternatives Explored and Rejected
 

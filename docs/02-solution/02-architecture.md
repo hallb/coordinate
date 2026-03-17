@@ -64,7 +64,7 @@ Person(contributor, "Contributor", "Submits receipts, views status")
 
 System_Boundary(browser, "User's Browser") {
     Container(pwa, "Coordinate PWA", "TypeScript, Vite + Service Worker", "Single-page app; service worker provides offline support and asset caching")
-    ContainerDb(storage, "On-Device Storage", "IndexedDB / SQLite-WASM via OPFS", "Expenses, submissions, plans, balances")
+    ContainerDb(storage, "On-Device Storage", "IndexedDB via Dexie.js", "Expenses, submissions, plans, balances")
 }
 
 System_Ext(staticHost, "Static Host", "GitHub Pages / Cloudflare Pages")
@@ -75,7 +75,7 @@ System_Ext(docStorage, "Document Storage", "Local filesystem or cloud (Dropbox, 
 Rel(staticHost, pwa, "Serves static bundle", "HTTPS")
 Rel(user, pwa, "Manages claims, configures plans", "HTTPS / browser")
 Rel(contributor, pwa, "Submits receipts, checks status", "HTTPS / browser")
-Rel(pwa, storage, "Reads/writes structured data", "IndexedDB / OPFS API")
+Rel(pwa, storage, "Reads/writes structured data", "IndexedDB API (Dexie.js)")
 Rel(pwa, docStorage, "Resolves document references", "File path or HTTPS")
 Rel(user, insurerPortal, "Submits claims, checks status (manual)", "HTTPS / browser")
 Rel(user, hcsaPortal, "Submits HCSA claims (manual)", "HTTPS / browser")
@@ -104,7 +104,7 @@ skinparam componentStyle rectangle
 
 package "Adapters (PWA)" as adaptersPwa {
     [UI Components]
-    [Storage Adapter\nIndexedDB / SQLite-WASM]
+    [Storage Adapter\nDexie.js (IndexedDB)]
     [Notification Adapter\nbrowser notifications]
 }
 
@@ -171,7 +171,7 @@ note bottom of household : Contains HouseholdMembership\n(references Person by I
 [CheckAlertsUseCase] --> [Repository Ports]
 [CheckAlertsUseCase] --> [Service Ports]
 
-[Storage Adapter\nIndexedDB / SQLite-WASM] ..> [Repository Ports] : implements
+[Storage Adapter\nDexie.js (IndexedDB)] ..> [Repository Ports] : implements
 [Document Reference Adapter\nlocal path or cloud URL] ..> [Service Ports] : implements
 [Notification Adapter\nbrowser notifications] ..> [Service Ports] : implements
 @enduml
