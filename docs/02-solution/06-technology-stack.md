@@ -87,5 +87,6 @@ None for MVP. The product has zero runtime service dependencies.
 | Stryker             | Mutation testing                |
 | GitHub Actions      | CI/CD pipeline                  |
 | axe / Lighthouse    | Accessibility testing (NFR-060) |
+| Schema evolution    | Dexie versioning or custom migration runner | Per storage path; ADR-008 |
 
 

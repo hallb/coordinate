@@ -381,6 +381,10 @@ Submissions, PlanMemberships, BenefitCategories, AnnualMaximums, HouseholdMember
 
 IndexedDB transactions can span multiple object stores, so cross-aggregate updates (e.g., updating an Expense and an InsurancePlan's AnnualMaximum in the RecordOutcomeUseCase) can be atomic within a single IndexedDB transaction.
 
+### Schema evolution
+
+Schema changes follow a versioned migration convention (ADR-008): one migration per file, sequential integer prefix (e.g. `v001`, `v002`), descriptive name. For Dexie.js, migrations use `db.version(N).stores({...}).upgrade(fn)`; for SQLite-WASM, a custom runner uses `PRAGMA user_version` and applies pending SQL migrations at startup.
+
 ### Cross-aggregate consistency
 
 Cross-aggregate updates (e.g., Expense + InsurancePlan in RecordOutcomeUseCase) occur within a single local transaction, which is possible because all data is in one local store. This is a simplification enabled by the local-first architecture (ADR-003). If the system later moves to multi-device sync or separate storage per aggregate, eventual consistency patterns (domain events, the Event Storing Subscriber pattern) would replace the single-transaction approach — the architectural seam for this is the domain event "effects" already returned by the state machine (ADR-002).
