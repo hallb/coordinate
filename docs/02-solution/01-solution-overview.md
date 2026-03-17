@@ -43,7 +43,6 @@ skinparam packageStyle rectangle
 
 package "Adapter Layer" as adapters {
   [PWA Frontend]
-  [CLI (NFR-034)]
   [IndexedDB / SQLite-WASM]
   [Browser Extension (Phase 6)]
   [AI Adapters (future)]
@@ -61,7 +60,6 @@ package "Core Domain" as domain {
 }
 
 [PWA Frontend] --> [Use Cases]
-[CLI (NFR-034)] --> [Use Cases]
 [Browser Extension (Phase 6)] --> [Use Cases]
 [Use Cases] --> [RoutingEngine]
 [Use Cases] --> [ClaimStateMachine]

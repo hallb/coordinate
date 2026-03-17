@@ -18,7 +18,7 @@ Reference for the `threat-model` subagent. Read this when performing STRIDE anal
 ## Trust Boundaries (Coordinate)
 
 - **Browser sandbox** — PWA runs in user's browser; same-origin policy, CSP, IndexedDB isolation
-- **Local filesystem** — CLI and PWA read/write storage; document references may point to local paths
+- **Local filesystem** — Document references may point to local paths; PWA storage (IndexedDB/OPFS) is browser-sandboxed
 - **HTTPS to static host** — PWA bundle served over TLS; no dynamic server-side logic for MVP
 - **Insurer portal sessions** — User's authenticated session; extension piggybacks; never through Coordinate
 - **Document storage** — Local paths or cloud URLs (Dropbox, iCloud); references only, Coordinate does not store document bytes

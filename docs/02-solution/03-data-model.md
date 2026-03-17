@@ -364,7 +364,7 @@ Invariant: `sum(amountPaid) ≤ originalAmount` (NFR-008, FR-023).
 
 ## Storage Strategy
 
-Both deployment targets (PWA and CLI) store all aggregate state locally. There is no backend database for MVP.
+The PWA stores all aggregate state locally. There is no backend database for MVP.
 
 ### PWA (IndexedDB / SQLite-WASM via OPFS)
 
@@ -380,10 +380,6 @@ Each aggregate root maps to an IndexedDB object store (or SQLite table if using 
 Submissions, PlanMemberships, BenefitCategories, AnnualMaximums, HouseholdMemberships, COBRelationships, ExternalCoverage, and DocumentRefs are all embedded within their aggregate root's record.
 
 IndexedDB transactions can span multiple object stores, so cross-aggregate updates (e.g., updating an Expense and an InsurancePlan's AnnualMaximum in the RecordOutcomeUseCase) can be atomic within a single IndexedDB transaction.
-
-### CLI (SQLite / JSON files)
-
-Same logical model. SQLite provides true ACID transactions across tables. The same aggregate-as-unit-of-storage principle applies: internal entities can be stored as JSON columns or as child tables within the same database, depending on query needs. The Repository adapter hides this choice from the domain.
 
 ### Cross-aggregate consistency
 

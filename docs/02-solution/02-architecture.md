@@ -2,7 +2,7 @@
 
 ## System Context Diagram
 
-Coordinate runs on the user's own device — either in the browser (PWA) or in a terminal (CLI). It interacts with insurer portals only through the user's own authenticated sessions (via an optional browser extension in Phase 6). No backend server exists for MVP.
+Coordinate runs on the user's own device in the browser (PWA). It interacts with insurer portals only through the user's own authenticated sessions (via an optional browser extension in Phase 6). No backend server exists for MVP.
 
 ![System Context](diagrams/system-context.png)
 
@@ -18,7 +18,7 @@ title System Context — Coordinate
 Person(user, "Insurance Manager", "Manages family claims across plans")
 Person(contributor, "Contributor", "Submits receipts, views status")
 
-System(coordinate, "Coordinate", "Local-first app (PWA or CLI). All data on-device.")
+System(coordinate, "Coordinate", "Local-first PWA. All data on-device.")
 
 System_Ext(staticHost, "Static Host", "GitHub Pages / Cloudflare Pages")
 System_Ext(insurerPortal, "Insurer Portals", "Sun Life, Manulife, Blue Cross, etc.")
@@ -38,7 +38,7 @@ Rel(coordinate, docStorage, "References supporting documents (NFR-051)")
 
 ### MVP boundaries
 
-- Coordinate is single-user, single-device (PWA or CLI). No sync, no shared state.
+- Coordinate is single-user, single-device (PWA). No sync, no shared state.
 - Insurer interaction is manual (guided by Coordinate). The browser extension is Phase 6.
 - Contributor access (PER-002) is Phase 4.
 - Document storage references are optional (NFR-051); they may point to local filesystem paths or cloud storage.
@@ -46,7 +46,7 @@ Rel(coordinate, docStorage, "References supporting documents (NFR-051)")
 
 ## Container Diagram
 
-For MVP, there are two entry points: the PWA (served as static files) and the CLI (run locally via Node.js). Both share the same core domain and application layers; they differ only in their adapter implementations.
+For MVP, the PWA (served as static files) is the sole entry point. The core domain and application layers are consumed by PWA adapters.
 
 ![Containers](diagrams/containers.png)
 
@@ -67,11 +67,6 @@ System_Boundary(browser, "User's Browser") {
     ContainerDb(storage, "On-Device Storage", "IndexedDB / SQLite-WASM via OPFS", "Expenses, submissions, plans, balances")
 }
 
-System_Boundary(local, "User's Machine") {
-    Container(cli, "Coordinate CLI", "TypeScript, Node.js", "Scriptable command-line interface (NFR-034)")
-    ContainerDb(cliStorage, "CLI Storage", "SQLite / JSON files", "Same domain data, file-based")
-}
-
 System_Ext(staticHost, "Static Host", "GitHub Pages / Cloudflare Pages")
 System_Ext(insurerPortal, "Insurer Portals", "Sun Life, Manulife, Blue Cross, etc.")
 System_Ext(hcsaPortal, "HCSA/PHSP Portals", "Coastal HSA, Benecaid, Olympia, etc.")
@@ -80,11 +75,8 @@ System_Ext(docStorage, "Document Storage", "Local filesystem or cloud (Dropbox, 
 Rel(staticHost, pwa, "Serves static bundle", "HTTPS")
 Rel(user, pwa, "Manages claims, configures plans", "HTTPS / browser")
 Rel(contributor, pwa, "Submits receipts, checks status", "HTTPS / browser")
-Rel(user, cli, "Scripts workflows, batch imports", "stdin / stdout")
 Rel(pwa, storage, "Reads/writes structured data", "IndexedDB / OPFS API")
-Rel(cli, cliStorage, "Reads/writes structured data", "SQLite / file I/O")
 Rel(pwa, docStorage, "Resolves document references", "File path or HTTPS")
-Rel(cli, docStorage, "Resolves document references", "File path or HTTPS")
 Rel(user, insurerPortal, "Submits claims, checks status (manual)", "HTTPS / browser")
 Rel(user, hcsaPortal, "Submits HCSA claims (manual)", "HTTPS / browser")
 @enduml
@@ -99,7 +91,7 @@ Rel(user, hcsaPortal, "Submits HCSA claims (manual)", "HTTPS / browser")
 
 ## Component Diagram
 
-Internal structure of the application, following the onion architecture (ADR-001). Both the PWA and CLI drive the same use cases; adapters differ by entry point.
+Internal structure of the application, following the onion architecture (ADR-001). The PWA drives use cases via UI components and the storage adapter.
 
 ![Components](diagrams/components.png)
 
@@ -114,11 +106,6 @@ package "Adapters (PWA)" as adaptersPwa {
     [UI Components]
     [Storage Adapter\nIndexedDB / SQLite-WASM]
     [Notification Adapter\nbrowser notifications]
-}
-
-package "Adapters (CLI)" as adaptersCli {
-    [CLI Commands\n(NFR-034)]
-    [Storage Adapter\nSQLite / JSON]
 }
 
 package "Adapters (shared)" as adaptersShared {
@@ -163,15 +150,6 @@ note bottom of household : Contains HouseholdMembership\n(references Person by I
 [UI Components] --> [GenerateReportUseCase]
 [UI Components] --> [CheckAlertsUseCase]
 
-[CLI Commands\n(NFR-034)] --> [SubmitExpenseUseCase]
-[CLI Commands\n(NFR-034)] --> [RecordSubmissionUseCase]
-[CLI Commands\n(NFR-034)] --> [RecordOutcomeUseCase]
-[CLI Commands\n(NFR-034)] --> [GetRoutingRecommendationUseCase]
-[CLI Commands\n(NFR-034)] --> [ConfigurePlanUseCase]
-[CLI Commands\n(NFR-034)] --> [TrackBalanceUseCase]
-[CLI Commands\n(NFR-034)] --> [GenerateReportUseCase]
-[CLI Commands\n(NFR-034)] --> [CheckAlertsUseCase]
-
 [SubmitExpenseUseCase] --> expense
 [SubmitExpenseUseCase] --> [RoutingEngine]
 [SubmitExpenseUseCase] --> [Repository Ports]
@@ -194,7 +172,6 @@ note bottom of household : Contains HouseholdMembership\n(references Person by I
 [CheckAlertsUseCase] --> [Service Ports]
 
 [Storage Adapter\nIndexedDB / SQLite-WASM] ..> [Repository Ports] : implements
-[Storage Adapter\nSQLite / JSON] ..> [Repository Ports] : implements
 [Document Reference Adapter\nlocal path or cloud URL] ..> [Service Ports] : implements
 [Notification Adapter\nbrowser notifications] ..> [Service Ports] : implements
 @enduml
@@ -214,7 +191,7 @@ note bottom of household : Contains HouseholdMembership\n(references Person by I
 ```
 @startuml diagrams/claim-lifecycle-sequence
 actor User
-participant "Entry Point\n(UI or CLI)" as UI
+participant "Entry Point\n(PWA UI)" as UI
 participant "Application Service" as AS
 participant "Expense\n(aggregate)" as Exp
 participant "RoutingEngine" as RE

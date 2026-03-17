@@ -31,7 +31,7 @@ Enumerate:
 
 **Data assets:** Household PII, insurance plan data, EOBs, claim history, plan balances, document references. Reference the aggregates: Person, Household, InsurancePlan, Expense.
 
-**Entry points:** PWA (browser), CLI (local), browser extension (Phase 6), document storage references (local filesystem or cloud URLs).
+**Entry points:** PWA (browser), browser extension (Phase 6), document storage references (local filesystem or cloud URLs).
 
 **Trust boundaries:** browser sandbox, local filesystem, HTTPS to static host, insurer portal sessions (user-owned), cross-household boundary (NFR-045).
 
