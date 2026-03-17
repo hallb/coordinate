@@ -1,6 +1,6 @@
 ---
 name: render-diagrams
-description: Regenerate PlantUML diagram images embedded in a markdown file. Use when the user asks to render, regenerate, or update diagrams in a doc, or after editing PlantUML source inside a details block.
+description: Regenerate PlantUML diagram images embedded in a markdown file. Use when the user asks to render, regenerate, or update diagrams in a doc, OR automatically after any edit to a @startuml/@enduml block in a markdown file — do not wait to be asked.
 ---
 
 # Render PlantUML Diagrams
