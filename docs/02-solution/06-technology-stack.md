@@ -45,21 +45,14 @@ All data is on-device per ADR-003 (local-first PWA).
 
 | Store               | Technology                            | Purpose                                                  |
 | ------------------- | ------------------------------------- | -------------------------------------------------------- |
-| Structured data     | IndexedDB or SQLite-WASM (via OPFS)   | Expenses, submissions, plans, balances, household config |
+| Structured data     | IndexedDB (via Dexie.js)              | Expenses, submissions, plans, balances, household config (ADR-009) |
 | Asset caching       | Service Worker (Cache API)            | Offline app shell and static assets                      |
 | Document references | Filesystem paths / cloud storage URLs | Supporting documents stored by reference (NFR-051)       |
 
 
-### Storage technology decision (pending)
+### Storage technology (ADR-009)
 
-
-| Option                                  | Pros                                                          | Cons                                                                                  |
-| --------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| IndexedDB (via Dexie.js)                | Native browser API, no WASM overhead, live queries with Dexie | Limited query expressiveness, no SQL, async-only                                      |
-| SQLite-WASM (via wa-sqlite / cr-sqlite) | Full SQL, familiar relational model, good for complex queries | WASM bundle size, OPFS required for persistence, newer/less battle-tested in browsers |
-
-
-This will be captured in a separate ADR once evaluated.
+Decided in [ADR-009](adr/009-storage-indexeddb-dexie.md): **IndexedDB via Dexie.js**. SQLite-WASM was rejected for MVP due to WASM bundle size, OPFS complexity, and weaker sync-path maturity.
 
 ## Third-Party Services
 
@@ -87,6 +80,7 @@ None for MVP. The product has zero runtime service dependencies.
 | Stryker             | Mutation testing                |
 | GitHub Actions      | CI/CD pipeline                  |
 | axe / Lighthouse    | Accessibility testing (NFR-060) |
-| Schema evolution    | Dexie versioning or custom migration runner | Per storage path; ADR-008 |
+| Dexie.js            | IndexedDB wrapper, live queries, schema migrations (ADR-008, ADR-009) |
+| Schema evolution    | Dexie built-in versioning (ADR-008 Path A)                       |
 
 

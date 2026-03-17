@@ -78,5 +78,5 @@ src/infrastructure/db/
 
 ### Neutral
 
-- The chosen storage technology (future ADR) will determine which path is implemented.
+- ADR-009 selects IndexedDB via Dexie.js; implement Path A.
 - Data model changes that only affect embedded JSON (e.g., adding a field to Submission) may not require a migration — depends on whether the storage adapter validates structure.

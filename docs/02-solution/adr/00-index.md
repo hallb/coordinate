@@ -16,3 +16,4 @@ For authoring guidance, see the [ADR Author skill](../../../.cursor/skills/adr-a
 | 006 | [AI as Optional Adapter](006-ai-optional-adapter.md) | accepted | 2026-03-15 | AI behind domain port interfaces; not in core, not in MVP |
 | 007 | [CLI Dropped; PWA Sole Entry Point](007-cli-dropped.md) | accepted | 2026-03-17 | CLI removed; PWA-only architecture; separate data store deemed unacceptable |
 | 008 | [Schema Evolution for Local Storage](008-schema-evolution.md) | accepted | 2026-03-17 | Flyway-style versioned migrations; Dexie built-in or custom runner per storage path |
+| 009 | [On-Device Storage: IndexedDB via Dexie.js](009-storage-indexeddb-dexie.md) | accepted | 2026-03-17 | IndexedDB with Dexie.js chosen over SQLite-WASM for simplicity and sync-readiness |
