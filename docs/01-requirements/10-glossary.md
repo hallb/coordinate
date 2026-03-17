@@ -26,6 +26,7 @@ entity InsurancePlan
 entity BenefitCategory
 entity AnnualMaximum
 entity COBRelationship
+entity ExternalCoverage
 entity Expense
 entity Submission
 entity ExplanationOfBenefits
@@ -43,6 +44,9 @@ InsurancePlan ||--o{ PlanMembership : "has members via"
 InsurancePlan ||--o{ BenefitCategory : defines
 BenefitCategory ||--o{ AnnualMaximum : "has limit per covered person"
 InsurancePlan ||--o{ COBRelationship : "participates in"
+Household ||--o{ ExternalCoverage : "records"
+ExternalCoverage }o--|| Person : "covers"
+COBRelationship }o--o{ ExternalCoverage : "may reference for ordering"
 Person ||--o{ Expense : incurs
 Expense ||--o{ Submission : "claimed via"
 Submission ||--o| ExplanationOfBenefits : produces
@@ -86,10 +90,11 @@ Person ||--o| SystemUser : "may have account"
 | GLO-017 | Plan Year | Benefit Year | The 12-month period over which Annual Maximums accrue and reset. Plan Years often differ from the calendar year; each Insurance Plan has its own Plan Year start date. |
 | GLO-018 | Plan Exhaustion | Limit Hit | The state in which an Insurance Plan's Annual Maximum for a specific Benefit Category and covered person has been fully consumed. A plan in Plan Exhaustion for a given category/person is skipped by the Routing Engine for all subsequent claims of that type until the Plan Year resets. Plan Exhaustion is a plan-year-wide state, not per-expense. |
 | GLO-019 | Coordination of Benefits | COB | The rules that determine the order in which multiple Insurance Plans pay claims for the same expense, ensuring combined reimbursement does not exceed the eligible expense amount. Governed in Canada by CLHIA Guideline G4 for group plans. |
-| GLO-020 | COB Relationship | Coordination Relationship | The ordering relationship between two or more Insurance Plans within a Household. Encodes which plan is primary and which is secondary for a given claimant, based on the Employee-First Rule, Birthday Rule, or explicit configuration (for plan types not subject to standard COB rules). |
+| GLO-020 | COB Relationship | Coordination Relationship | The ordering relationship between two or more Insurance Plans within a Household. Encodes which plan is primary and which is secondary for a given claimant, based on the Employee-First Rule, Birthday Rule, or explicit configuration (for plan types not subject to standard COB rules). May also reference External Coverage (GLO-035) for ordering purposes when a Person has coverage outside this Household. |
 | GLO-021 | Employee-First Rule | | A Coordination of Benefits priority rule: a plan covering a person as an Insured (employee/subscriber) is always primary over a plan covering them as a Beneficiary (dependent). |
 | GLO-022 | Birthday Rule | | A Coordination of Benefits priority rule for dependent children covered under both parents' plans: the plan of the parent whose birthday falls earliest in the calendar year (month and day only, ignoring birth year) is primary. If both parents share a birthday, the plan active longest is primary. |
 | GLO-023 | Canada Revenue Agency | CRA | The federal agency responsible for administering Canadian tax law, including the rules governing eligible medical expenses for Health Care Spending Accounts, Private Health Services Plans, and the Medical Expense Tax Credit. |
+| GLO-035 | External Coverage | | A lightweight record within a Household indicating that a Person has insurance coverage under a plan managed outside this Household. Stores enough information for COB ordering (insurer name, plan type, COB position hint) but not coverage details (limits, utilization, benefit categories). The Routing Engine treats External Coverage as an opaque step in the cascade — it recommends "submit to [external plan] first" without evaluating eligibility or limits. Cross-household information flows occur through user-initiated document sharing (EOBs, receipts), not plan data sharing. |
 
 ### Claims and Expenses
 

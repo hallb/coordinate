@@ -109,6 +109,8 @@ Sobia as Contributor, Nadia as caregiver, multi-household context switching. Ort
 
 **Depends on**: Phase 1 (household and plan configuration must exist before access control is meaningful).
 
+**Note**: When a Person belongs to multiple Households (e.g., Mira in Ben's household and her own), cross-household COB is handled via External Coverage (GLO-035, FR-045) and document sharing (EOBs, receipts), not plan data sharing. No plan data crosses the Household boundary. See NFR-045.
+
 ### Phase 5 — Refinements
 
 Enhancements that improve the core experience but aren't required for it to function. Items are mutually independent and can be prioritised individually.
@@ -118,6 +120,8 @@ Enhancements that improve the core experience but aren't required for it to func
 | Smart suggestions | FR-003 | Could |
 | Multi-beneficiary attribution | FR-004 | Should |
 | Direct billing | FR-005 | Should |
+| Pre-recorded external submission | FR-046 | Should |
+| External Coverage (multi-household COB) | FR-045 | Should |
 | PHSP coordination | FR-014 | Should |
 | Plan changes | FR-043 | Must (but needed only when it happens) |
 | Overclaim correction | FR-034 | Should |

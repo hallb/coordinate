@@ -38,12 +38,19 @@ package "Household Aggregate" as HA {
         personId: PersonId
         role: UserRole
     }
+    class ExternalCoverage <<entity>> {
+        id: ExternalCoverageId
+        personId: PersonId
+        insurerName: string
+        planType: PlanType
+        cobPositionHint: string
+    }
     class COBRelationship <<entity>> {
-        planIds: PlanId[]
+        participantRefs: CobParticipantRef[]
         basis: COBPriorityBasis
-        explicitOrder: PlanId[]?
     }
     Household *-- "1..*" HouseholdMembership
+    Household *-- "0..*" ExternalCoverage
     Household *-- "0..*" COBRelationship
 }
 
@@ -89,7 +96,8 @@ package "Expense Aggregate" as EA {
     }
     class Submission <<entity>> {
         id: SubmissionId
-        planId: PlanId
+        planId: PlanId?
+        externalCoverageId: ExternalCoverageId?
         state: ClaimState
         submissionDate: CalendarDate
         amountClaimed: Money
@@ -111,10 +119,13 @@ HouseholdMembership ..> Person : personId
 PlanMembership ..> Person : personId
 AnnualMaximum ..> Person : personId
 Expense ..> Person : personId
-COBRelationship ..> InsurancePlan : planIds
+COBRelationship ..> InsurancePlan : "participantRefs (PlanId)"
+COBRelationship ..> ExternalCoverage : "participantRefs (ExternalCoverageId)"
+ExternalCoverage ..> Person : personId
 InsurancePlan ..> Household : householdId
 Expense ..> Household : householdId
 Submission ..> InsurancePlan : planId
+Submission ..> ExternalCoverage : externalCoverageId?
 
 @enduml
 ```
@@ -126,7 +137,7 @@ Submission ..> InsurancePlan : planId
 | Aggregate | Root | Internal Entities | Key Value Objects | Key Invariants |
 |-----------|------|-------------------|-------------------|----------------|
 | Person | Person | — | CalendarDate | Single identity across households (GLO-002, FR-040) |
-| Household | Household | HouseholdMembership, COBRelationship | UserRole, COBPriorityBasis | ≥ 1 Insurance Manager (NFR-044); COBRelationship references only plans scoped to this household |
+| Household | Household | HouseholdMembership, COBRelationship, ExternalCoverage | UserRole, COBPriorityBasis, CobParticipantRef | ≥ 1 Insurance Manager (NFR-044); COBRelationship references only plans and ExternalCoverage scoped to this household |
 | InsurancePlan | InsurancePlan | PlanMembership, BenefitCategory | AnnualMaximum, PlanType, PlanYear | AnnualMaximum.used ≤ AnnualMaximum.limit; all PlanMembership persons exist |
 | Expense | Expense | Submission | DocumentRef, ClaimState, Money | No-overclaim: sum of amountPaid across submissions ≤ originalAmount (NFR-008); valid state transitions only (ADR-002) |
 
@@ -134,7 +145,7 @@ Submission ..> InsurancePlan : planId
 
 | Service | Purpose | Operates on |
 |---------|---------|-------------|
-| RoutingEngine | Determines the next applicable plan for an expense (GLO-030) | Receives Expense + InsurancePlan[] + COBRelationship[] as parameters; pure computation, no I/O |
+| RoutingEngine | Determines the next applicable plan for an expense (GLO-030) | Receives Expense + InsurancePlan[] + ExternalCoverage[] + COBRelationship[] as parameters; pure computation, no I/O. Operates within a single Household. When ExternalCoverage has higher COB priority than internal plans, recommends "submit to [external] first" without evaluating eligibility or limits (GLO-035, FR-010). |
 | BalanceTracker | Updates plan balance state after a payment (FR-050) | Receives InsurancePlan[] + payment details; mutates AnnualMaximum values on the plans |
 
 These are domain services because they coordinate logic across aggregate boundaries. The Application Service loads the required aggregates, passes them in, and saves the results (see [claim lifecycle sequence](02-architecture.md#core-claim-lifecycle-flow)).
@@ -151,9 +162,9 @@ These are domain services because they coordinate logic across aggregate boundar
 
 ### Household
 
-**Boundary decision**: Household is an aggregate root containing HouseholdMembership and COBRelationship as internal entities.
+**Boundary decision**: Household is an aggregate root containing HouseholdMembership, COBRelationship, and ExternalCoverage as internal entities.
 
-**Rationale**: HouseholdMembership is scoped to a single Household and has no meaning outside it — it represents "this Person belongs to this Household with this role." COBRelationship is similarly scoped: it defines the coordination order between plans within this Household (GLO-020, FR-042). Both are configuration entities that change infrequently and are always accessed in the context of their Household.
+**Rationale**: HouseholdMembership is scoped to a single Household and has no meaning outside it — it represents "this Person belongs to this Household with this role." COBRelationship is similarly scoped: it defines the coordination order between plans and ExternalCoverage within this Household (GLO-020, FR-042, GLO-035). ExternalCoverage records lightweight references to coverage a Person has outside this Household — enough for COB ordering, without plan details (limits, utilization). Both are configuration entities that change infrequently and are always accessed in the context of their Household.
 
 The Household aggregate represents the family unit's configuration: who is in it, and how their plans coordinate. This is the natural consistency boundary for operations like "add a family member and set up their COB relationships" — both should succeed or fail atomically.
 
@@ -183,6 +194,12 @@ The Household aggregate represents the family unit's configuration: who is in it
 
 **DocumentRef** is a value object. Documents are stored by reference (NFR-051) — a URI pointing to a local file or cloud storage. The actual document bytes are external to the domain. DocumentRef appears on both Expense (supporting documents like receipts) and Submission (EOB reference). ExplanationOfBenefits metadata (amount claimed, amount paid, denial reasons per GLO-028) is captured directly on the Submission entity; the EOB document itself is just a DocumentRef.
 
+### Household as Data Isolation Boundary
+
+Household is the **attribute-based access control (ABAC) boundary** for all domain data (NFR-045). Plan data — coverage limits, utilization tracking, claim status, and data retrieved via browser extension (FR-091, FR-092) — is scoped to the Household that owns the relevant InsurancePlan. Plan data is never accessible from another Household, even if the same Person belongs to both.
+
+Cross-household COB (e.g., a Person with coverage in multiple Households per PER-001 Mira scenario) is handled via **ExternalCoverage + document sharing**, not plan data sharing. When Ben enters an expense for Mira in his Household after she has processed it through her spouse's plan in her own Household, he records the outcome via FR-046 (pre-recorded external submission) and attaches the EOB. The RoutingEngine picks up from the remainder through Ben's Household's plans. No plan data from Mira's Household crosses the boundary.
+
 ## Data Dictionary
 
 ### Shared value types
@@ -200,6 +217,7 @@ The Household aggregate represents the family unit's configuration: who is in it
 | ClaimState | Enum: `submitted`, `processing`, `paid_full`, `paid_partial`, `rejected_fixable`, `rejected_final`, `audit`, `limit_hit`, `closed_zero`, `closed_oop` | Per GLO-027 |
 | DocumentType | Enum: `Receipt`, `EOB`, `Referral`, `Prescription`, `LabRequisition` | Per GLO-034 |
 | Percentage | Decimal 0–100, 2 decimal places. Used for coinsurance rates. | `80.00` |
+| CobParticipantRef | Discriminated union: `{ planId: PlanId }` or `{ externalCoverageId: ExternalCoverageId }` | References either an internal InsurancePlan or ExternalCoverage for COB ordering |
 
 ### Person Aggregate
 
@@ -230,15 +248,27 @@ The Household aggregate represents the family unit's configuration: who is in it
 
 Invariant: each Household must have at least one HouseholdMembership with role = InsuranceManager (NFR-044).
 
+**ExternalCoverage**
+
+| Field | Type | Constraints | Notes |
+|-------|------|-------------|-------|
+| id | ExternalCoverageId (UUID) | PK, immutable | |
+| householdId | HouseholdId | FK → Household, immutable | |
+| personId | PersonId | FK → Person (cross-aggregate) | The person who has this external coverage |
+| insurerName | string | Required | Display name for routing explanation (e.g., "Mira's spouse's plan") |
+| planType | PlanType | Required | GroupHealth, GroupDental, HCSA, or PHSP |
+| cobPositionHint | string | Required | Enough for RoutingEngine to place in COB order (e.g., "primary per birthday rule"). Used when basis = Standard. |
+
+ExternalCoverage has no benefit categories, limits, or utilization — only COB ordering information (GLO-035, FR-045).
+
 **COBRelationship**
 
 | Field | Type | Constraints | Notes |
 |-------|------|-------------|-------|
 | id | COBRelationshipId (UUID) | PK, immutable | |
 | householdId | HouseholdId | FK → Household, immutable | |
-| planIds | PlanId[] | ≥ 2 elements; all must reference plans scoped to this household | |
-| basis | COBPriorityBasis | Required | `Standard` = CLHIA rules (Employee-First + Birthday); `Explicit` = user-configured order |
-| explicitOrder | PlanId[]? | Required when basis = Explicit | Ordered list: first = primary. Used for PHSP and non-standard plans (FR-014). |
+| participantRefs | CobParticipantRef[] | ≥ 2 elements; references plans and/or ExternalCoverage scoped to this household | Ordered list for Explicit basis; for Standard, RoutingEngine applies CLHIA to plans and inserts ExternalCoverage per cobPositionHint |
+| basis | COBPriorityBasis | Required | `Standard` = CLHIA rules (Employee-First + Birthday); `Explicit` = user-configured order (participantRefs order) |
 
 ### InsurancePlan Aggregate
 
@@ -315,7 +345,8 @@ Invariant: `sum(amountPaid) ≤ originalAmount` (NFR-008, FR-023).
 |-------|------|-------------|-------|
 | id | SubmissionId (UUID) | PK, immutable | |
 | expenseId | ExpenseId | FK → Expense, immutable | |
-| planId | PlanId | FK → InsurancePlan (cross-aggregate), immutable | The plan this claim was submitted to |
+| planId | PlanId? | FK → InsurancePlan (cross-aggregate), optional | The plan this claim was submitted to. Null for pre-recorded external submissions (FR-005, FR-046). |
+| externalCoverageId | ExternalCoverageId? | FK → ExternalCoverage (cross-aggregate), optional | Set for pre-recorded external submissions (FR-046). Exactly one of planId or externalCoverageId must be set. |
 | state | ClaimState | Required | Governed by internal ClaimStateMachine (ADR-002) |
 | submissionDate | CalendarDate | Required | When the claim was submitted to the plan |
 | amountClaimed | Money | Required, > 0, ≤ expense.remainingBalance at time of submission | FR-023 |
@@ -346,7 +377,7 @@ Each aggregate root maps to an IndexedDB object store (or SQLite table if using 
 | InsurancePlan | `insurance_plans` | `id` | `householdId`, `planType`, `active` |
 | Expense | `expenses` | `id` | `householdId`, `personId`, `serviceDate`, `category` |
 
-Submissions, PlanMemberships, BenefitCategories, AnnualMaximums, HouseholdMemberships, COBRelationships, and DocumentRefs are all embedded within their aggregate root's record.
+Submissions, PlanMemberships, BenefitCategories, AnnualMaximums, HouseholdMemberships, COBRelationships, ExternalCoverage, and DocumentRefs are all embedded within their aggregate root's record.
 
 IndexedDB transactions can span multiple object stores, so cross-aggregate updates (e.g., updating an Expense and an InsurancePlan's AnnualMaximum in the RecordOutcomeUseCase) can be atomic within a single IndexedDB transaction.
 

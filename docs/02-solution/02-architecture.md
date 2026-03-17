@@ -42,6 +42,7 @@ Rel(coordinate, docStorage, "References supporting documents (NFR-051)")
 - Insurer interaction is manual (guided by Coordinate). The browser extension is Phase 6.
 - Contributor access (PER-002) is Phase 4.
 - Document storage references are optional (NFR-051); they may point to local filesystem paths or cloud storage.
+- Cross-household COB (when a Person has coverage in multiple Households) is handled via External Coverage (GLO-035) and document sharing — not plan data sharing. See [Data Model](03-data-model.md#household-as-data-isolation-boundary).
 
 ## Container Diagram
 
