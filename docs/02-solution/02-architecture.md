@@ -102,13 +102,10 @@ Internal structure of the application, following the onion architecture (ADR-001
 @startuml diagrams/components
 skinparam componentStyle rectangle
 
-package "Adapters (PWA)" as adaptersPwa {
+package "Adapters" as adapters {
     [UI Components]
     [Storage Adapter\nDexie.js (IndexedDB)]
     [Notification Adapter\nbrowser notifications]
-}
-
-package "Adapters (shared)" as adaptersShared {
     [Document Reference Adapter\nlocal path or cloud URL]
 }
 
