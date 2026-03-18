@@ -19,7 +19,7 @@ No authentication. The Operator (the person using the PWA) has unrestricted acce
 
 No authorization model. The Operator can view and modify all Household data on the device. Household context switching is UI navigation — selecting which Household's data to display — not an access control decision.
 
-**Household as data scoping boundary.** Plan data (coverage limits, utilization, claim status, browser-extension-scraped data) is scoped to the Household that owns the InsurancePlan. The UI presents one Household's data at a time; data from one Household is not shown when operating in another context. This is organisational scoping, not enforcement — the Operator can switch contexts and access everything. Cross-household information flows occur only through user-initiated document sharing (EOBs, receipts), not through shared plan data (NFR-045).
+**Household as data scoping boundary.** Coverage data (benefit limits, utilization, claim status, browser-extension-scraped data) is scoped to the Household that owns the Coverage. The UI presents one Household's data at a time; data from one Household is not shown when operating in another context. This is organisational scoping, not enforcement — the Operator can switch contexts and access everything. Cross-household information flows occur only through user-initiated document sharing (EOBs, receipts), not through shared plan data (NFR-045).
 
 **Phase 4.** The requirements describe an ABAC model (Household × User Role, NFR-044, NFR-045). When a sync layer and identity system exist, the Household becomes an access control boundary and the permission matrix (Insurance Manager, Contributor) applies. See the NFR delegated authorization section for the principles.
 

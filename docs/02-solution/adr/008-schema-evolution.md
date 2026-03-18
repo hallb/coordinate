@@ -29,7 +29,7 @@ src/infrastructure/db/
   index.ts                   ← exports db singleton
 ```
 
-**Convention:** All version blocks remain in the schema file permanently; they form the upgrade chain for users on old versions. Only indexed properties appear in the schema string; embedded JSON sub-entities (Submissions, PlanMemberships, etc.) need no schema entry.
+**Convention:** All version blocks remain in the schema file permanently; they form the upgrade chain for users on old versions. Only indexed properties appear in the schema string; embedded JSON sub-entities (Submissions, CoverageMemberships, etc.) need no schema entry.
 
 ### Path B — SQLite-WASM (wa-sqlite): custom lightweight runner
 

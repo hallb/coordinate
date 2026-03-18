@@ -66,7 +66,7 @@ The browser extension is one adapter implementation. The manual/guided workflow 
 
 ### Data scoping
 
-Data retrieved by the extension (claim status, plan balances, EOB documents) is written to the InsurancePlan aggregate within the Household context of the plan holder. The extension operates on behalf of a specific Household context — the one the user is viewing in the PWA when the automation runs. Retrieved data does not cross Household boundaries (NFR-045).
+Data retrieved by the extension (claim status, coverage balances, EOB documents) is written to the Coverage aggregate within the Household context of the coverage holder. The extension operates on behalf of a specific Household context — the one the user is viewing in the PWA when the automation runs. Retrieved data does not cross Household boundaries (NFR-045).
 
 If Ben scrapes status from his insurer portal, the data goes to Ben's Household. If Sobia's portal is scraped (requiring Sobia's 2FA), the data goes to the Household where that plan is configured — in the PER-001 scenario, Sobia's plan is configured in Ben's Household, so the data belongs there. A System User managing multiple Households (e.g., Nadia with her own family and Fatima's) will have scraped data written only to the Household whose context was active during the automation.
 

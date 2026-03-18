@@ -1,16 +1,26 @@
 #!/bin/sh
+# Render PlantUML diagrams embedded in markdown files.
+# @startuml paths in source are relative to the markdown file's directory.
+# We always pass -o with the absolute directory of the markdown file so that
+# plantuml -tpng -o <dir> + @startuml diagrams/foo never double-nests.
 set -e
 cd "$(dirname "$0")/.."
 ./script/bootstrap
 
+render_file() {
+  f="$1"
+  outdir="$(cd "$(dirname "$f")" && pwd)"
+  plantuml -tpng -o "$outdir" "$f"
+}
+
 if [ -n "$1" ]; then
   echo "Rendering diagrams in $1..."
-  plantuml -tpng "$1"
+  render_file "$1"
 else
   echo "Rendering all diagrams..."
   find docs -name "*.md" | while read -r f; do
     echo "  $f"
-    plantuml -tpng "$f" || true
+    render_file "$f" || true
   done
 fi
 echo "Done."

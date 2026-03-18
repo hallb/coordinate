@@ -124,7 +124,7 @@ package "Application" as application {
 package "Domain" as domain {
     package "Aggregates" as aggregates {
         [Expense] as expense
-        [InsurancePlan] as plan
+        [Coverage] as coverage
         [Person] as person
         [Household] as household
     }
@@ -138,6 +138,7 @@ package "Domain" as domain {
 
 note bottom of expense : Contains Submission\nand ClaimStateMachine
 note bottom of household : Contains HouseholdMembership\n(references Person by ID)
+note bottom of coverage : Contains CoverageMembership,\nBenefitCategory, AnnualMaximum
 
 [UI Components] --> [SubmitExpenseUseCase]
 [UI Components] --> [RecordSubmissionUseCase]
@@ -159,7 +160,7 @@ note bottom of household : Contains HouseholdMembership\n(references Person by I
 [RecordOutcomeUseCase] --> [Repository Ports]
 [GetRoutingRecommendationUseCase] --> [RoutingEngine]
 [GetRoutingRecommendationUseCase] --> [Repository Ports]
-[ConfigurePlanUseCase] --> plan
+[ConfigurePlanUseCase] --> coverage
 [ConfigurePlanUseCase] --> household
 [ConfigurePlanUseCase] --> [Repository Ports]
 [TrackBalanceUseCase] --> [BalanceTracker]
