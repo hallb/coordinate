@@ -25,8 +25,69 @@ No authorization model. The Operator can view and modify all Household data on t
 
 ## Data Protection
 
-Encryption at rest and in transit; key management. (To be expanded per NFR-043.)
+### Data at rest (MVP)
+
+IndexedDB data is not encrypted at the application level for MVP. Protection relies on three complementary mechanisms:
+
+1. **Local-first architecture**: All data stays on the user's device (ADR-003). No sensitive data is transmitted to or stored on any server. The attack surface is limited to the physical device and the browser profile.
+2. **Browser same-origin policy**: IndexedDB stores are scoped to the application's origin. No other website or application can read or write Coordinate's data through the browser.
+3. **OS-level full-disk encryption**: FileVault (macOS), BitLocker (Windows), and LUKS (Linux) encrypt the entire disk at rest, including the browser profile directory that contains IndexedDB files. On mobile, iOS and Android enable device encryption by default.
+
+NFR-043 requires structured data at rest to be protected with key material not co-located with the data. For MVP, OS-level encryption satisfies this — the encryption key is derived from the user's device password and managed by the OS, not stored alongside the database files. This is a known limitation: if OS-level encryption is disabled, IndexedDB data is readable by anyone with filesystem access to the browser profile.
+
+**Application-level encryption** (e.g., AES-GCM via Web Crypto API, applied through a Dexie middleware that encrypts values before storage) is deferred. It adds key-management complexity — where to store the encryption key in a client-side-only app — without meaningfully improving security when the browser profile itself is accessible to anyone with device access. This decision is revisited when a sync layer (Phase 4) introduces data transmission, at which point end-to-end encryption of synced data becomes relevant.
+
+### Data in transit (MVP)
+
+No application data is transmitted over a network for MVP. The only network interaction is serving the PWA bundle itself:
+
+- **PWA bundle**: Served over HTTPS from the static host (GitHub Pages). TLS protects the bundle in transit (NFR-042).
+- **Document references**: When a user references documents stored in cloud storage (Dropbox, iCloud, Google Drive), those references resolve via the provider's own HTTPS connections. Coordinate does not proxy or relay document content.
+- **Insurer portals**: The user navigates to insurer portals in a separate browser tab. No data flows between Coordinate and insurer portals in MVP.
+
+### Insurer credentials
+
+Coordinate never stores, transmits, or logs insurer or HCSA/PHSP portal credentials — in any phase (NFR-041). When portal automation is introduced (Phase 6), the browser extension operates within the user's own authenticated browser session. Credentials are handled entirely by the browser and the insurer's authentication flow.
+
+### Document references
+
+Coordinate stores document URIs (filesystem paths or cloud URLs), not document bytes. The security of referenced documents — access control, encryption, retention — is the responsibility of the user's chosen storage. This is by design: Coordinate is not a document vault (NFR-051).
+
+### Future (Phase 4+)
+
+When a sync layer introduces data transmission between devices, the data protection posture must be revisited:
+
+- End-to-end encryption of synced data so the relay service cannot read cleartext.
+- Key management for multi-device access (key exchange or device-specific keys).
+- Application-level encryption of IndexedDB may become warranted if the sync layer stores data in a server-side database.
 
 ## Audit and Logging
 
-What is logged, retention, and compliance requirements.
+### MVP
+
+There is no server and therefore no server-side logging. The audit and logging posture for MVP is minimal and development-oriented:
+
+- **Structured console logging**: Domain events (expense created, state transition, outcome recorded) are logged to `console` with structured metadata (aggregate ID, timestamp, event type) during development. These logs are not persisted and are not available in production unless the user opens browser dev tools.
+- **No persistent audit log**: There is no on-device audit trail of user actions. All data mutations are reflected in the current state of aggregates in IndexedDB, but there is no append-only event log or change history.
+
+### Error reporting
+
+- **React error boundary**: Unhandled rendering errors are caught by a top-level error boundary that displays a fallback UI and logs the error with a stack trace.
+- **Optional opt-in error reporting**: A client-side error reporting service (e.g., Sentry free tier) may be integrated with explicit user consent (NFR-001). Error reports must not contain PII — no expense amounts, person names, insurer names, or document URIs. Only stack traces, component names, and browser metadata are transmitted.
+- **Data export for reproduction**: When a user reports an issue, the data export feature (NFR-050) allows them to share a full or sanitized dataset for local reproduction by the maintainer.
+
+### Observability alignment (NFR-031)
+
+NFR-031 requires diagnosing production issues without accessing user data. For a local-first PWA with no server, "production issues" manifest as user-reported bugs. The observability strategy is:
+
+1. Error boundary captures and displays the error context.
+2. Optional Sentry reports provide stack traces without PII.
+3. Data export enables reproduction with the user's consent.
+
+This satisfies NFR-031 for MVP. Server-side structured logging, health checks, and uptime monitoring become relevant when a sync service exists (Phase 4).
+
+### Future (Phase 4+)
+
+- **Delegation audit log**: All delegation grants and revocations must be logged (NFR-044). This requires a persistent, append-only audit log — likely server-side, co-located with the sync service.
+- **Data access logging**: Access to Household data by delegated users should be logged for accountability (NFR-007).
+- **Retention**: Audit log retention policy to be defined alongside the sync service architecture.

@@ -6,36 +6,25 @@
 | Technology   | Version | Purpose                                                                |
 | ------------ | ------- | ---------------------------------------------------------------------- |
 | TypeScript   | 5.x     | Primary language across all layers (ADR-004)                           |
+| React        | 19.x    | UI framework                                                           |
+| Ant Design   | 5.x     | Component library (Form, Steps, Table, Timeline, Drawer, Statistic)    |
+| React Router | 7.x     | Client-side routing (`/claims`, `/plans`, `/settings`)                 |
 | Vite         | 6.x     | Build tool and dev server for PWA                                      |
-| UI framework | TBD     | Frontend component framework (React, Svelte, or Solid — to be decided) |
 | Vitest       | 3.x     | Unit and integration test runner                                       |
 | Stryker      | 8.x     | Mutation testing (`@stryker-mutator/vitest-runner`)                    |
 
-
-### UI framework decision (pending)
-
-The UI framework choice is deferred. Candidates:
-
-
-| Framework          | Pros                                                       | Cons                                                    |
-| ------------------ | ---------------------------------------------------------- | ------------------------------------------------------- |
-| React              | Largest ecosystem, most hiring pool, extensive PWA tooling | Larger bundle, more boilerplate for simple UIs          |
-| Svelte (SvelteKit) | Small bundle, less boilerplate, built-in reactivity        | Smaller ecosystem, fewer component libraries            |
-| Solid              | React-like API with fine-grained reactivity, small bundle  | Smallest ecosystem of the three, less community support |
-
-
-This will be captured in a separate ADR once evaluated.
+React + Ant Design was selected for the fastest path to working MVP screens. AntD's built-in component set maps directly to the claim lifecycle UI — multi-step wizards, submission timelines, balance statistics, and coverage drawers. Custom design tokens in AntD 5 soften the default enterprise aesthetic. See [UI/UX](05-ui-ux.md) for the full technology direction rationale. A dedicated ADR will record the formal decision.
 
 ## Infrastructure
 
 MVP requires no server infrastructure. The PWA is served as static files.
 
 
-| Component      | Technology                                | Notes                                  |
-| -------------- | ----------------------------------------- | -------------------------------------- |
-| Static hosting | GitHub Pages / Cloudflare Pages / Netlify | Free tier sufficient for MVP           |
-| CI/CD          | GitHub Actions                            | Build, test, deploy pipeline (NFR-032) |
-| Domain         | TBD                                       | Custom domain for the PWA              |
+| Component      | Technology     | Notes                                  |
+| -------------- | -------------- | -------------------------------------- |
+| Static hosting | GitHub Pages   | Free tier sufficient for MVP           |
+| CI/CD          | GitHub Actions | Build, test, deploy pipeline (NFR-032) |
+| Domain         | TBD            | Custom domain for the PWA              |
 
 
 ## Data Stores
