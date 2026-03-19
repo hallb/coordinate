@@ -65,13 +65,14 @@ Binary checkboxes (done or not). 4–8 items. Each independently verifiable.
 - **Milestone**: Create or use an existing MDP milestone (e.g. M-4) for the phase. Add a description with the 8 sections or link to a doc.
 - **Issues**: Create MDP issues under the milestone. Each issue body (content after frontmatter) can contain the 8-section structure for that work unit, or a subset if the issue is small.
 - **Titles**: Use `solution: <topic>` or `requirements: <topic>` per mdp-workflow conventions.
-- **Dependencies**: Set `--blocked-by ISS-N` when one issue depends on another.
+- **Dependencies**: Set `--blocked-by ISS-N` for **direct predecessors only** (minimal dependencies). Omit transitive dependencies so partial ordering allows parallel execution. E.g. if A→B→C, C lists only B in `blockedBy`, not A.
 
 ```bash
-# Example: create issue for Phase 1 work
+# Example: create issue for Phase 1 work (with blockedBy for ordering)
 mdp issue create -p ~/work/ai-coordinate/coordinate-planner \
   -t "solution: Plan configuration (FR-040, FR-041, FR-042)" \
   --type feature --milestone M-4 \
+  --blocked-by ISS-5 \
   --checklist "Implement Household aggregate","Implement InsurancePlan aggregate","Add Dexie schema"
 ```
 
@@ -97,6 +98,7 @@ Before considering a phase "shaped":
 - [ ] Success criteria are binary (4–8 items)
 - [ ] Phase represents 1–2 weeks of work (split if larger)
 - [ ] Solution docs audited if this is a phase transition
+- [ ] `blockedBy` set on issues with dependencies; only direct predecessors (minimal, enables parallel execution)
 
 ## Common Mistakes
 
@@ -106,6 +108,8 @@ Before considering a phase "shaped":
 | Plan is vague | "Set up storage" → "Create Dexie schema for persons, households, insurance_plans, expenses" |
 | FR mapping implicit | "Implements plan config" → "FR-040, FR-041, FR-042" (exact IDs) |
 | Verification vague | "Test routing" → "Run RoutingEngine.test.ts — birthday rule scenarios pass" |
+| Missing or empty `blockedBy` | Issue body says "Depends on ISS-47" but frontmatter has `blockedBy: []` — set `--blocked-by ISS-47` so MDP/workflows can enforce ordering |
+| Over-specified `blockedBy` | List only direct predecessors. If A→B→C, C gets `blockedBy: [B]` not `[A,B]` — enables parallel execution |
 
 ## Future Considerations
 
