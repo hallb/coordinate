@@ -41,10 +41,10 @@ mdp milestone log add -p ~/work/ai-coordinate/coordinate-planner --id M-N -b "Ga
 - **Gate completion**: Update milestone status to Completed when all linked issues are Done; add a log entry summarizing the gate.
 - **New phase**: Create next milestone and move or create issues under it.
 
-## Current milestone set (coordinate-planner)
+## Discovering current state
 
-- M-1 Problem & alignment baseline  
-- M-2 User/scope freeze (MVP)  
-- M-3 Risk-driven planning gate  
-- M-4 Solution architecture baseline  
-- M-5 Delivery readiness gate  
+Always query live state rather than relying on hardcoded references:
+
+```bash
+mdp milestone list -p ~/work/ai-coordinate/coordinate-planner
+```
