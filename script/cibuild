@@ -1,0 +1,12 @@
+#!/bin/sh
+set -e
+cd "$(dirname "$0")/.."
+
+./script/bootstrap
+npm run lint
+npx tsc --noEmit
+./script/test
+npm run build
+npm run format:check
+
+echo "CI build complete."

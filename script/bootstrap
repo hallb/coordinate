@@ -2,9 +2,31 @@
 set -e
 cd "$(dirname "$0")/.."
 
+# Ensure Node and npm are available (bootstrap installs all dependencies including toolchain)
+if [ -f package.json ]; then
+  if ! command -v node >/dev/null 2>&1 || ! command -v npm >/dev/null 2>&1; then
+    echo "Node.js and npm are required. Install from https://nodejs.org/ or use a version manager:"
+    echo "  nvm:  https://github.com/nvm-sh/nvm"
+    echo "  fnm:  https://github.com/Schniz/fnm"
+    exit 1
+  fi
+  # Use correct Node version if .nvmrc or .node-version is present
+  if [ -f .nvmrc ] && command -v nvm >/dev/null 2>&1; then
+    nvm use
+  fi
+  if [ -f .node-version ] && command -v fnm >/dev/null 2>&1; then
+    eval "$(fnm env)" && fnm use
+  fi
+  npm install
+  # Install Playwright browsers if E2E is a dependency (needed for npm run test:e2e)
+  if [ -d node_modules/@playwright/test ]; then
+    npx playwright install
+  fi
+fi
+
+# Optional: PlantUML for diagram rendering
 if ! command -v plantuml >/dev/null 2>&1; then
-  echo "Installing PlantUML..."
-  sudo apt-get update -qq && sudo apt-get install -y plantuml
+  echo "Note: PlantUML not found. Install with: sudo apt-get install plantuml (optional for script/render-diagrams)"
 fi
 
 echo "Bootstrap complete."

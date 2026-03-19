@@ -1,0 +1,8 @@
+#!/bin/sh
+set -e
+cd "$(dirname "$0")/.."
+
+if [ -n "$1" ]; then
+  exec npx vitest run "$@"
+fi
+exec npx vitest run

@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+
+# Test and coverage
+coverage/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Editor and OS
+.DS_Store
+*.log
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# PWA
+dev-dist/
+sw.js
+workbox-*.js
+workbox-*.js.map
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
