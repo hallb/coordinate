@@ -30,61 +30,85 @@ Present:
 - **What**: Purpose, scope, context
 - **How**: Technical approach, architecture, patterns (onion/ports-and-adapters)
 - **Dependencies**: Prerequisites, blocking work
+- **Risks**: Known challenges, technical risks, mitigations
 - **Deliverables**: Code, config, tests, docs
 
 ### 4. Implementation checklist
 
 Create a granular checklist from the phase Plan and issues. Categories: domain, application, adapters, tests, config, docs.
 
-### 5. Definition of Done
+### 5. Test expectations
+
+Derive from the issue's AI Gate and [10-testing-strategy.md](docs/02-solution/10-testing-strategy.md):
+
+- Test layers required (unit, integration, E2E)
+- Key scenarios per layer
+- Test naming: FR/NFR ID prefix per testing strategy conventions
+- No skipped or disabled tests; tests must be deterministic
+
+### 6. Definition of Done
 
 - All code follows project conventions (onion-architecture, TypeScript)
 - No lint errors; build succeeds; tests pass
 - Phase verification gates (AI + Human) satisfied
 
-### 6. Go / No-Go
+### 7. Go / No-Go
 
 Ask: "Ready to proceed? Please respond with 'go' or 'no-go'". Wait for explicit "go".
 
+If **no-go**: Address concerns, revise the plan, and re-present. Wait for explicit "go".
+
 ## Execution
 
-### 7. Create branch
+### 8. Create branch
 
 ```bash
 git checkout -b feature/p1-core-claim
 # or feature/p2-proactive-guidance, feature/phase-1-mvp, etc.
 ```
 
-### 8. Implement
+### 9. Implement
 
-- Work through checklist and MDP issues sequentially
+- Respect `blockedBy` ordering from MDP issue frontmatter
+- Identify issues that can proceed in parallel (no mutual blockedBy)
+- Within each issue, follow its Plan section step-by-step
 - Follow `script/` — use `script/bootstrap`, `script/test`
 - Run `script/test` frequently; fix failures before continuing
 - Run linters; fix errors
 
-### 9. Quality gates
+### 10. Quality gates
 
 - [ ] All code written
 - [ ] All tests passing
 - [ ] No lint errors
 - [ ] `script/cibuild` (or `script/test`) passes
 
-### 10. Manual test plan
+### 11. Manual test plan
 
 Provide setup instructions and test scenarios (happy path, error cases, edge cases). For PWA: browser testing, mobile viewport if applicable.
 
-### 11. Bug capture (before approval)
+Edge cases to consider: empty/null inputs, invalid data, concurrent operations, offline/network failure (PWA), large datasets, permission boundaries.
+
+### 12. Bug capture (before approval)
 
 Ask: "Is there any need to track any bugs or issues before moving on to the next phase?"
 
 - If **yes**: Create MDP issues with `--type bug` and label `bug`. Include summary, where it resides, requirements impacted. Link to current phase/milestone.
 - No separate bugs log — bugs are MDP issues.
 
-### 12. Request approval
+### 13. Request approval
 
-Present summary: features, files created/modified, test results. State: "All implementation is complete. All tests pass. Ready for review." **Do NOT commit** until user says "approved" or "commit".
+Present:
 
-### 13. Commit (only after explicit approval)
+- Features implemented (mapped to MDP issue IDs)
+- Files created / modified (brief descriptions)
+- Dependencies added
+- Test results: X unit, Y integration, Z E2E — all passing
+- AI Gate results from each issue
+
+State: "All implementation is complete. All tests pass. Ready for review." **Do NOT commit** until user says "approved" or "commit".
+
+### 14. Commit (only after explicit approval)
 
 ```bash
 git add .
@@ -127,7 +151,7 @@ If the user asks to **review bugs** before proceeding:
 
 ```
 1. User: "Execute Phase 1"
-2. AI: [Reads MDP, confirms solution docs, presents education + checklist + DoD]
+2. AI: [Reads MDP, confirms solution docs, presents education + checklist + test expectations + DoD]
 3. AI: "Ready to proceed? Please respond with 'go' or 'no-go'"
 4. User: "go"
 5. AI: [Creates branch feature/p1-core-claim, implements]
