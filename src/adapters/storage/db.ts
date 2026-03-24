@@ -13,7 +13,7 @@ export class CoordinateDB extends Dexie {
     },
     string
   >;
-  households!: Dexie.Table<{ id: string; name: string }, string>;
+  households!: Dexie.Table<Record<string, unknown>, string>;
   external_coverages!: Dexie.Table<
     {
       id: string;

@@ -64,7 +64,7 @@ The minimum to enter an expense, route it through the COB cascade, track submiss
 
 | Feature Area | FRs | Priority |
 |---|---|---|
-| Plan configuration | FR-040, FR-041, FR-042 | Must |
+| Plan configuration | FR-040, FR-041, FR-042, FR-047 | Must |
 | Expense entry | FR-001, FR-002 | Must |
 | Routing engine | FR-010, FR-011, FR-012, FR-013, FR-015 | Must |
 | Submission tracking | FR-020, FR-021, FR-022, FR-023 | Must |
@@ -192,3 +192,4 @@ Questions flagged during requirements gathering that must be resolved during sol
 | RI-002 | Which major Canadian insurers (Sun Life, Manulife, Blue Cross, Desjardins, Great-West Life) offer APIs or stable portal structures suitable for automated status retrieval or claim submission? | FR-091, FR-092 | Determines feasibility and scope of Phase 6. |
 | RI-003 | When a primary plan's annual maximum is exhausted, do secondary insurers consistently require an EOB from the exhausted primary, or will they accept a claim without one? | FR-012 | Determines the default for the "EOB from exhausted primary" COB relationship configuration. |
 | RI-004 | What is the typical submission grace period length across major Canadian group benefit plans? | FR-041, FR-051 | Informs the default grace period value in plan configuration. |
+| RI-005 | Should the domain model introduce a **Benefits Program** (or **Employer Plan Package**) aggregate that groups multiple Coverages (health + dental + HCSA) under one employer-sponsored program and allows a **single subscriber (Insured) Person** to be declared once for the group, rather than repeated per Coverage? Today each Coverage is a separate aggregate with its own CoverageMembership including one `Insured` per Coverage — which duplicates the same Person as subscriber across lines from the same carrier. | FR-040, FR-041, FR-047 | If yes: solution data model and UI wizards change (grouping, shared subscriber). If no: accept duplication in storage; FR-047 still reduces re-keying of insurer *identity* (name/URL) via the directory. |

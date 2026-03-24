@@ -1,10 +1,13 @@
 import React from "react";
+import { SettingsHouseholdSection } from "./SettingsHouseholdSection";
+import { SettingsCoverageSection } from "./SettingsCoverageSection";
 
 export function SettingsPage(): React.ReactElement {
   return (
     <div>
       <h1>Settings</h1>
-      <p>Household, coverages, and data export will appear here.</p>
+      <SettingsHouseholdSection />
+      <SettingsCoverageSection />
     </div>
   );
 }

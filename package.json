@@ -17,6 +17,7 @@
   "dependencies": {
     "@ant-design/icons": "^5.4.0",
     "antd": "^5.22.0",
+    "dayjs": "^1.11.13",
     "dexie": "^4.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

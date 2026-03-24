@@ -5,8 +5,8 @@ node_modules/
 dist/
 dist-ssr/
 
-# Test and coverage
-coverage/
+# Test coverage reports (root only — not src/domain/coverage aggregate)
+/coverage/
 
 # Environment
 .env
